@@ -7,12 +7,19 @@ Console.WriteLine("=======================\n");
 // Get endpoint URL from command-line args, environment variable, or use default
 string? endpointUrl = GetEndpointUrl(args);
 
+// Get credentials from environment variables
+var credentials = GetCredentials();
+
 Console.WriteLine($"Using endpoint: {endpointUrl ?? "default"}");
+if (credentials.HasValue)
+{
+    Console.WriteLine($"Using authentication: {credentials.Value.Username}");
+}
 Console.WriteLine();
 
 try
 {
-    var serviceInfo = await GetWebServiceInformationAsync(endpointUrl);
+    var serviceInfo = await GetWebServiceInformationAsync(endpointUrl, credentials);
     
     if (serviceInfo != null)
     {
@@ -73,9 +80,10 @@ catch (EndpointNotFoundException ex)
     Console.WriteLine("2. Check network connectivity to the server");
     Console.WriteLine("3. Ensure the service is running on the target server");
     Console.WriteLine("4. Check firewall settings");
-    Console.WriteLine("\nYou can specify a custom endpoint using:");
+    Console.WriteLine("\nConfiguration options:");
     Console.WriteLine("  - Command line: dotnet run -- <endpoint-url>");
     Console.WriteLine("  - Environment variable: PME_ENDPOINT_URL=<endpoint-url>");
+    Console.WriteLine("  - Credentials: PME_USERNAME and PME_PASSWORD environment variables");
     
     Environment.Exit(1);
 }
@@ -108,7 +116,22 @@ static string? GetEndpointUrl(string[] args)
     return null;
 }
 
-static async Task<GetWebServiceInformationResponse?> GetWebServiceInformationAsync(string? endpointUrl)
+static (string Username, string Password)? GetCredentials()
+{
+    string? username = Environment.GetEnvironmentVariable("PME_USERNAME");
+    string? password = Environment.GetEnvironmentVariable("PME_PASSWORD");
+    
+    if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
+    {
+        return (username, password);
+    }
+    
+    return null;
+}
+
+static async Task<GetWebServiceInformationResponse?> GetWebServiceInformationAsync(
+    string? endpointUrl, 
+    (string Username, string Password)? credentials)
 {
     DataExchangeClient client;
     
@@ -128,6 +151,13 @@ static async Task<GetWebServiceInformationResponse?> GetWebServiceInformationAsy
     
     using (client)
     {
+        // Configure credentials if provided
+        if (credentials.HasValue)
+        {
+            client.ClientCredentials.UserName.UserName = credentials.Value.Username;
+            client.ClientCredentials.UserName.Password = credentials.Value.Password;
+        }
+        
         var request = new GetWebServiceInformationRequest
         {
             version = "1.0"
