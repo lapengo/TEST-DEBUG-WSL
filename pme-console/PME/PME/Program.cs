@@ -1,6 +1,8 @@
 ﻿using WSDL;
 using System.ServiceModel;
 
+DotNetEnv.Env.Load();
+
 Console.WriteLine("PME SOAP Service Client");
 Console.WriteLine("=======================\n");
 
@@ -118,8 +120,8 @@ static string GetEndpointUrl(string[] args)
 
 static (string Username, string Password)? GetCredentials()
 {
-    string? username = Environment.GetEnvironmentVariable("PME_USERNAME");
-    string? password = Environment.GetEnvironmentVariable("PME_PASSWORD");
+    string? username = "supervisor";
+    string? password = "P@ssw0rdpme";
     
     if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
     {
