@@ -66,6 +66,95 @@ Using authentication: supervisor
 
 ## Troubleshooting
 
+### ⚠️ Error: "No such host is known" atau "EndpointNotFoundException"
+
+**Error lengkap:**
+```
+✗ DNS Resolution: FAILED
+  Host: beitvmpme01.beitm.id
+  Error: No such host is known.
+
+System.ServiceModel.EndpointNotFoundException: 'There was no endpoint listening at 
+http://beitvmpme01.beitm.id/EWS/DataExchange.svc that could accept the message.'
+```
+
+**Apa artinya:**
+- Server `beitvmpme01.beitm.id` **tidak bisa diakses** dari komputer Anda
+- DNS tidak bisa menerjemahkan nama server ke alamat IP
+- Ini adalah server **internal** yang hanya bisa diakses dari jaringan tertentu
+
+**Solusi:**
+
+1. **CONNECT KE VPN DULU** (Paling Sering) ⭐
+   ```bash
+   # 1. Nyalakan VPN BEIT/Perusahaan
+   # 2. Pastikan status: Connected
+   # 3. Test dengan ping:
+   ping beitvmpme01.beitm.id
+   # 4. Jika berhasil di-ping, jalankan aplikasi lagi
+   dotnet run
+   ```
+
+2. **Cek Apakah Anda Di Jaringan yang Tepat**
+   - Server internal hanya bisa diakses dari:
+     - Komputer di kantor
+     - Melalui VPN perusahaan
+   - TIDAK bisa diakses dari:
+     - Internet umum
+     - WiFi rumah (tanpa VPN)
+     - Hotspot HP
+
+3. **Test Koneksi Manual**
+   ```bash
+   # Windows (Command Prompt):
+   ping beitvmpme01.beitm.id
+   nslookup beitvmpme01.beitm.id
+   
+   # Linux/Mac (Terminal):
+   ping beitvmpme01.beitm.id
+   nslookup beitvmpme01.beitm.id
+   ```
+   
+   **Hasil yang diharapkan jika BERHASIL:**
+   ```
+   Reply from 192.168.x.x: bytes=32 time=5ms TTL=64
+   ```
+   
+   **Jika GAGAL:**
+   ```
+   Ping request could not find host beitvmpme01.beitm.id
+   ```
+   → Anda belum di jaringan yang tepat atau VPN belum connect
+
+4. **Gunakan IP Address Langsung (Temporary)**
+   
+   Jika Anda tahu IP address server PME, edit `appsettings.json`:
+   ```json
+   {
+     "PmeService": {
+       "EndpointUrl": "http://192.168.1.100/EWS/DataExchange.svc",
+       "Username": "supervisor",
+       "Password": "P@ssw0rdpme"
+     }
+   }
+   ```
+
+5. **Hubungi IT Support**
+   
+   Jika semua cara di atas tidak berhasil, hubungi IT/Network Admin dengan info:
+   - Lokasi Anda (kantor/remote)
+   - Status VPN (connected/disconnected)
+   - Hasil ping dan nslookup
+   - Screenshot error
+
+**📖 Penjelasan Lengkap:**
+
+Lihat file `PENJELASAN-ERROR.md` untuk:
+- Penjelasan detail kenapa error ini terjadi
+- Diagram troubleshooting lengkap
+- FAQ dan solusi umum
+- Contact support
+
 ### Jika file appsettings.json tidak ada:
 
 Pastikan file `appsettings.json` ada di folder yang benar:
