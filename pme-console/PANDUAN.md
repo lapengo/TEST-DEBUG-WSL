@@ -18,7 +18,7 @@ File `appsettings.json` berisi konfigurasi endpoint dan kredensial:
 ```json
 {
   "PmeService": {
-    "EndpointUrl": "http://beitvmpme01.beitm.id/EWS/DataExchange.svc?singleWsdl",
+    "EndpointUrl": "http://beitvmpme01.beitm.id/EWS/DataExchange.svc",
     "Username": "supervisor",
     "Password": "P@ssw0rdpme"
   }
@@ -28,6 +28,8 @@ File `appsettings.json` berisi konfigurasi endpoint dan kredensial:
 Jika perlu mengubah, edit file `appsettings.json` dengan text editor:
 - Windows: `notepad appsettings.json`
 - Linux/Mac: `nano appsettings.json` atau `vim appsettings.json`
+
+**Catatan Penting:** URL endpoint harus URL service saja, JANGAN tambahkan `?singleWsdl`. Parameter `?singleWsdl` hanya digunakan untuk mengambil definisi WSDL saat development, bukan untuk pemanggilan SOAP.
 
 ### 3. Jalankan aplikasi
 

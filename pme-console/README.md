@@ -5,7 +5,7 @@ This console application demonstrates how to call the PME SOAP web service to re
 ## Prerequisites
 
 - .NET 10.0 SDK
-- Access to the PME server (default: `http://beitvmpme01.beitm.id/EWS/DataExchange.svc?singleWsdl`)
+- Access to the PME server (default: `http://beitvmpme01.beitm.id/EWS/DataExchange.svc`)
 - Valid credentials for authentication (username and password)
 
 ## Quick Start
@@ -22,7 +22,7 @@ This console application demonstrates how to call the PME SOAP web service to re
    ```json
    {
      "PmeService": {
-       "EndpointUrl": "http://beitvmpme01.beitm.id/EWS/DataExchange.svc?singleWsdl",
+       "EndpointUrl": "http://beitvmpme01.beitm.id/EWS/DataExchange.svc",
        "Username": "supervisor",
        "Password": "P@ssw0rdpme"
      }
@@ -40,7 +40,7 @@ This console application demonstrates how to call the PME SOAP web service to re
 
 The application uses `appsettings.json` for configuration. This file contains:
 
-- **EndpointUrl**: The SOAP service WSDL endpoint URL (with ?singleWsdl parameter)
+- **EndpointUrl**: The SOAP service endpoint URL (NOT the WSDL URL - do not include ?singleWsdl)
 - **Username**: Username for Digest authentication
 - **Password**: Password for Digest authentication
 
@@ -49,12 +49,14 @@ The application uses `appsettings.json` for configuration. This file contains:
 ```json
 {
   "PmeService": {
-    "EndpointUrl": "http://beitvmpme01.beitm.id/EWS/DataExchange.svc?singleWsdl",
+    "EndpointUrl": "http://beitvmpme01.beitm.id/EWS/DataExchange.svc",
     "Username": "your-username",
     "Password": "your-password"
   }
 }
 ```
+
+**Important Note:** The `EndpointUrl` should be the service endpoint, NOT the WSDL URL. The `?singleWsdl` parameter is only used when retrieving the WSDL definition during development/service reference generation, not for making SOAP calls.
 
 ### Command-Line Override
 
