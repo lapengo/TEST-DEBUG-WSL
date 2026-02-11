@@ -9,8 +9,6 @@ var dotEnvOptions = new DotEnvOptions(
 );
 DotEnv.Load(dotEnvOptions);
 
-DotNetEnv.Env.Load();
-
 Console.WriteLine("PME SOAP Service Client");
 Console.WriteLine("=======================\n");
 
