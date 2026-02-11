@@ -15,6 +15,18 @@ var password = config["PmeService:Password"];
 Console.WriteLine("PME SOAP Service Client");
 Console.WriteLine("=======================\n");
 
+// Validate endpoint URL - warn if ?singleWsdl is included
+if (endpoint.Contains("?singleWsdl", StringComparison.OrdinalIgnoreCase))
+{
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine("WARNING: Endpoint URL contains '?singleWsdl'");
+    Console.WriteLine("This parameter is for WSDL retrieval only, not for SOAP calls.");
+    Console.WriteLine("Removing '?singleWsdl' from endpoint URL...\n");
+    Console.ResetColor();
+    
+    endpoint = endpoint.Replace("?singleWsdl", "", StringComparison.OrdinalIgnoreCase);
+}
+
 try
 {
     // Create SOAP client
