@@ -1,6 +1,8 @@
 ﻿using WSDL;
 using System.ServiceModel;
 using Microsoft.Extensions.Configuration;
+using System.Net;
+using System.Net.Sockets;
 
 // Load configuration
 var config = new ConfigurationBuilder()
@@ -26,6 +28,9 @@ if (endpoint.Contains("?singleWsdl", StringComparison.OrdinalIgnoreCase))
     
     endpoint = endpoint.Replace("?singleWsdl", "", StringComparison.OrdinalIgnoreCase);
 }
+
+// Perform network diagnostics
+await PerformNetworkDiagnostics(endpoint);
 
 try
 {
@@ -99,15 +104,159 @@ try
     
     Console.WriteLine("\n--- Execution completed successfully ---");
 }
-catch (Exception ex)
+catch (EndpointNotFoundException ex)
 {
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine("\n╔════════════════════════════════════════════════════════════════╗");
+    Console.WriteLine("║         ENDPOINT CONNECTION ERROR                              ║");
+    Console.WriteLine("╚════════════════════════════════════════════════════════════════╝");
+    Console.ResetColor();
+    
     Console.WriteLine($"\nError: {ex.Message}");
     if (ex.InnerException != null)
     {
         Console.WriteLine($"Details: {ex.InnerException.Message}");
     }
+    
+    Console.ForegroundColor = ConsoleColor.Yellow;
+    Console.WriteLine("\n📋 TROUBLESHOOTING STEPS:");
+    Console.ResetColor();
+    
+    Console.WriteLine("\n1. VERIFY NETWORK CONNECTIVITY:");
+    Console.WriteLine($"   • Can you ping {ExtractHostname(endpoint)}?");
+    Console.WriteLine("   • Are you connected to the required network/VPN?");
+    Console.WriteLine("   • Is there a firewall blocking the connection?");
+    
+    Console.WriteLine("\n2. CHECK ENDPOINT CONFIGURATION:");
+    Console.WriteLine($"   • Current endpoint: {endpoint}");
+    Console.WriteLine("   • Verify this is the correct URL in appsettings.json");
+    Console.WriteLine("   • Ensure URL does NOT include ?singleWsdl");
+    
+    Console.WriteLine("\n3. VERIFY SERVICE STATUS:");
+    Console.WriteLine("   • Is the PME server running?");
+    Console.WriteLine("   • Is the DataExchange service deployed?");
+    Console.WriteLine("   • Check with your system administrator");
+    
+    Console.WriteLine("\n4. CONFIGURATION FILE:");
+    Console.WriteLine("   • Location: appsettings.json");
+    Console.WriteLine("   • Format:");
+    Console.WriteLine("     {");
+    Console.WriteLine("       \"PmeService\": {");
+    Console.WriteLine("         \"EndpointUrl\": \"http://your-server/EWS/DataExchange.svc\",");
+    Console.WriteLine("         \"Username\": \"your-username\",");
+    Console.WriteLine("         \"Password\": \"your-password\"");
+    Console.WriteLine("       }");
+    Console.WriteLine("     }");
+    
+    Console.WriteLine("\n--- Execution completed with errors ---");
+}
+catch (Exception ex)
+{
+    Console.ForegroundColor = ConsoleColor.Red;
+    Console.WriteLine("\n╔════════════════════════════════════════════════════════════════╗");
+    Console.WriteLine("║         UNEXPECTED ERROR                                       ║");
+    Console.WriteLine("╚════════════════════════════════════════════════════════════════╝");
+    Console.ResetColor();
+    
+    Console.WriteLine($"\nError: {ex.Message}");
+    if (ex.InnerException != null)
+    {
+        Console.WriteLine($"Details: {ex.InnerException.Message}");
+    }
+    Console.WriteLine($"\nException Type: {ex.GetType().Name}");
     Console.WriteLine("\n--- Execution completed with errors ---");
 }
 
 Console.WriteLine("\nPress any key to exit...");
 Console.ReadKey();
+
+// Helper function to perform network diagnostics
+static async Task PerformNetworkDiagnostics(string endpointUrl)
+{
+    try
+    {
+        var uri = new Uri(endpointUrl);
+        var hostname = uri.Host;
+        
+        Console.WriteLine("Network Diagnostics:");
+        Console.WriteLine("--------------------");
+        
+        // DNS Resolution
+        try
+        {
+            var addresses = await Dns.GetHostAddressesAsync(hostname);
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"✓ DNS Resolution: SUCCESS");
+            Console.ResetColor();
+            Console.WriteLine($"  Host: {hostname}");
+            Console.WriteLine($"  IP Address(es): {string.Join(", ", addresses.Select(a => a.ToString()))}");
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"✗ DNS Resolution: FAILED");
+            Console.ResetColor();
+            Console.WriteLine($"  Host: {hostname}");
+            Console.WriteLine($"  Error: {ex.Message}");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("  ⚠ The hostname cannot be resolved. Check network/VPN connection.");
+            Console.ResetColor();
+        }
+        
+        // Port connectivity check
+        var port = uri.Port > 0 ? uri.Port : (uri.Scheme == "https" ? 443 : 80);
+        try
+        {
+            using var tcpClient = new TcpClient();
+            var connectTask = tcpClient.ConnectAsync(hostname, port);
+            if (await Task.WhenAny(connectTask, Task.Delay(5000)) == connectTask)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"✓ Port Connectivity: SUCCESS");
+                Console.ResetColor();
+                Console.WriteLine($"  Port {port} is reachable");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"✗ Port Connectivity: TIMEOUT");
+                Console.ResetColor();
+                Console.WriteLine($"  Port {port} connection timed out");
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine("  ⚠ Server may be offline or firewall is blocking connection.");
+                Console.ResetColor();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine($"✗ Port Connectivity: FAILED");
+            Console.ResetColor();
+            Console.WriteLine($"  Port: {port}");
+            Console.WriteLine($"  Error: {ex.Message}");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("  ⚠ Cannot connect to server. Check if server is running and accessible.");
+            Console.ResetColor();
+        }
+        
+        Console.WriteLine();
+    }
+    catch (Exception ex)
+    {
+        Console.ForegroundColor = ConsoleColor.Yellow;
+        Console.WriteLine($"⚠ Network diagnostics error: {ex.Message}\n");
+        Console.ResetColor();
+    }
+}
+
+static string ExtractHostname(string url)
+{
+    try
+    {
+        return new Uri(url).Host;
+    }
+    catch
+    {
+        return url;
+    }
+}
