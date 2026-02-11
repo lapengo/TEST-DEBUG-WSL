@@ -42,6 +42,12 @@ try
 
     using (client)
     {
+        // Configure timeouts
+        client.Endpoint.Binding.OpenTimeout = TimeSpan.FromSeconds(30);
+        client.Endpoint.Binding.CloseTimeout = TimeSpan.FromSeconds(30);
+        client.Endpoint.Binding.SendTimeout = TimeSpan.FromSeconds(60);
+        client.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromSeconds(60);
+        
         // Configure authentication
         if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
         {
@@ -51,13 +57,24 @@ try
             Console.WriteLine($"User: {username}\n");
         }
 
-        // Call GetWebServiceInformation
-        var request = new GetWebServiceInformationRequest { version = "2" };
-        var response = await client.GetWebServiceInformationAsync(request);
-        var serviceInfo = response?.GetWebServiceInformationResponse;
+        Console.WriteLine("Calling GetWebServiceInformation...");
+        Console.WriteLine("Please wait, this may take a few seconds...\n");
+        
+        // Call GetWebServiceInformation with retry logic
+        var serviceInfo = await CallWithRetryAsync(async () =>
+        {
+            var request = new GetWebServiceInformationRequest { version = "1.0" };
+            var response = await client.GetWebServiceInformationAsync(request);
+            return response?.GetWebServiceInformationResponse;
+        }, maxRetries: 3, delaySeconds: 2);
 
         if (serviceInfo != null)
         {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("✓ Successfully retrieved service information!");
+            Console.ResetColor();
+            Console.WriteLine();
+            
             Console.WriteLine("Web Service Information");
             Console.WriteLine("=======================");
             Console.WriteLine($"Version: {serviceInfo.version}");
@@ -98,7 +115,9 @@ try
         }
         else
         {
-            Console.WriteLine("No data received from service.");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("⚠ No data received from service.");
+            Console.ResetColor();
         }
     }
     
@@ -259,4 +278,59 @@ static string ExtractHostname(string url)
     {
         return url;
     }
+}
+
+// Helper function to retry SOAP calls
+static async Task<T?> CallWithRetryAsync<T>(Func<Task<T?>> operation, int maxRetries = 3, int delaySeconds = 2) where T : class
+{
+    int attempt = 0;
+    while (attempt < maxRetries)
+    {
+        attempt++;
+        try
+        {
+            Console.WriteLine($"Attempt {attempt} of {maxRetries}...");
+            var result = await operation();
+            return result;
+        }
+        catch (EndpointNotFoundException ex) when (attempt < maxRetries)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"⚠ Attempt {attempt} failed: {ex.Message}");
+            Console.ResetColor();
+            
+            if (attempt < maxRetries)
+            {
+                Console.WriteLine($"Retrying in {delaySeconds} seconds...\n");
+                await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
+            }
+        }
+        catch (TimeoutException ex) when (attempt < maxRetries)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"⚠ Attempt {attempt} timed out: {ex.Message}");
+            Console.ResetColor();
+            
+            if (attempt < maxRetries)
+            {
+                Console.WriteLine($"Retrying in {delaySeconds} seconds...\n");
+                await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
+            }
+        }
+        catch (Exception ex) when (attempt < maxRetries)
+        {
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"⚠ Attempt {attempt} failed: {ex.GetType().Name} - {ex.Message}");
+            Console.ResetColor();
+            
+            if (attempt < maxRetries)
+            {
+                Console.WriteLine($"Retrying in {delaySeconds} seconds...\n");
+                await Task.Delay(TimeSpan.FromSeconds(delaySeconds));
+            }
+        }
+    }
+    
+    // All retries failed, throw the last exception
+    throw new Exception($"All {maxRetries} attempts failed. Please check the error messages above.");
 }
