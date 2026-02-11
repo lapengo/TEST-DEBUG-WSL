@@ -8,81 +8,84 @@ This console application demonstrates how to call the PME SOAP web service to re
 - Access to the PME server (default: `http://beitvmpme01.beitm.id/EWS/DataExchange.svc`)
 - Valid credentials for authentication (username and password)
 
+## Quick Start (Recommended)
+
+**The easiest way to configure the application is using a `.env` file:**
+
+1. Copy the example file:
+   ```bash
+   cd pme-console/PME/PME
+   cp ../../../.env.example .env
+   ```
+
+2. Edit `.env` with your credentials (or use the defaults for testing):
+   ```bash
+   # .env file content:
+   PME_ENDPOINT_URL=http://beitvmpme01.beitm.id/EWS/DataExchange.svc
+   PME_USERNAME=supervisor
+   PME_PASSWORD=P@ssw0rdpme
+   ```
+
+3. Run the application:
+   ```bash
+   dotnet run
+   ```
+
+**That's it!** The application will automatically load the configuration from the `.env` file. No need to manually set environment variables!
+
 ## Configuration
 
 The application supports multiple ways to configure the SOAP endpoint and credentials:
 
-### Authentication
+### 1. .env File (Recommended - Easiest Method)
 
-The service requires username and password authentication. Configure credentials using environment variables:
+Create a `.env` file in the `pme-console/PME/PME` directory:
+
+```bash
+PME_ENDPOINT_URL=http://beitvmpme01.beitm.id/EWS/DataExchange.svc
+PME_USERNAME=supervisor
+PME_PASSWORD=P@ssw0rdpme
+```
+
+Then simply run:
+```bash
+cd pme-console/PME/PME
+dotnet run
+```
+
+The application will automatically load these values. The `.env` file is excluded from git for security.
+
+### 2. Environment Variables (Manual Method)
+
+Set environment variables before running:
 
 ```bash
 # Linux/macOS
 export PME_USERNAME=your-username
 export PME_PASSWORD='your-password'
+export PME_ENDPOINT_URL=http://your-server.com/EWS/DataExchange.svc
 
 # Windows PowerShell
 $env:PME_USERNAME="your-username"
 $env:PME_PASSWORD="your-password"
+$env:PME_ENDPOINT_URL="http://your-server.com/EWS/DataExchange.svc"
 
 # Windows Command Prompt
 set PME_USERNAME=your-username
 set PME_PASSWORD=your-password
+set PME_ENDPOINT_URL=http://your-server.com/EWS/DataExchange.svc
 ```
 
-### Endpoint Configuration
+### 3. Command-Line Argument (For Endpoint Only)
 
-### 1. Default Endpoint (Hardcoded)
-By default, the application uses `http://beitvmpme01.beitm.id/EWS/DataExchange.svc`
-
-### 2. Command-Line Argument
 You can specify a custom endpoint URL as a command-line argument:
 
 ```bash
-cd pme-console/PME
-dotnet run --project PME.csproj -- http://your-server.com/EWS/DataExchange.svc
+cd pme-console/PME/PME
+dotnet run -- http://your-server.com/EWS/DataExchange.svc
 ```
 
-### 3. Environment Variable
-Set the `PME_ENDPOINT_URL` environment variable:
-
-```bash
-# Linux/macOS
-export PME_ENDPOINT_URL=http://your-server.com/EWS/DataExchange.svc
-export PME_USERNAME=your-username
-export PME_PASSWORD='your-password'
-dotnet run --project PME.csproj
-
-# Windows PowerShell
-$env:PME_ENDPOINT_URL="http://your-server.com/EWS/DataExchange.svc"
-$env:PME_USERNAME="your-username"
-$env:PME_PASSWORD="your-password"
-dotnet run --project PME.csproj
-
-# Windows Command Prompt
-set PME_ENDPOINT_URL=http://your-server.com/EWS/DataExchange.svc
-set PME_USERNAME=your-username
-set PME_PASSWORD=your-password
-dotnet run --project PME.csproj
-```
-
-**Priority Order:** Command-line argument > Environment variable > Default hardcoded value
-
-### Full Example with Authentication
-
-```bash
-# Linux/macOS
-export PME_USERNAME=your-username
-export PME_PASSWORD='your-password'
-cd pme-console/PME
-dotnet run --project PME.csproj
-
-# Or with custom endpoint
-export PME_ENDPOINT_URL=http://your-server.com/EWS/DataExchange.svc
-export PME_USERNAME=your-username
-export PME_PASSWORD='your-password'
-dotnet run --project PME.csproj
-```
+**Priority Order:** Command-line argument > Environment variable > .env file > Default hardcoded value
 
 ## Usage
 
