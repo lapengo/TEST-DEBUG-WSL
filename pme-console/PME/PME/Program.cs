@@ -1,11 +1,18 @@
 ﻿using WSDL;
+using System.ServiceModel;
 
 Console.WriteLine("PME SOAP Service Client");
 Console.WriteLine("=======================\n");
 
+// Get endpoint URL from command-line args, environment variable, or use default
+string? endpointUrl = GetEndpointUrl(args);
+
+Console.WriteLine($"Using endpoint: {endpointUrl ?? "default"}");
+Console.WriteLine();
+
 try
 {
-    var serviceInfo = await GetWebServiceInformationAsync();
+    var serviceInfo = await GetWebServiceInformationAsync(endpointUrl);
     
     if (serviceInfo != null)
     {
@@ -50,6 +57,28 @@ try
         Console.WriteLine("No data received from web service.");
     }
 }
+catch (EndpointNotFoundException ex)
+{
+    Console.WriteLine("ERROR: Unable to connect to the SOAP service endpoint.");
+    Console.WriteLine($"Endpoint: {endpointUrl ?? "http://beitvmpme01.beitm.id/EWS/DataExchange.svc"}");
+    Console.WriteLine($"\nDetails: {ex.Message}");
+    
+    if (ex.InnerException != null)
+    {
+        Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
+    }
+    
+    Console.WriteLine("\nTroubleshooting:");
+    Console.WriteLine("1. Verify the endpoint URL is correct");
+    Console.WriteLine("2. Check network connectivity to the server");
+    Console.WriteLine("3. Ensure the service is running on the target server");
+    Console.WriteLine("4. Check firewall settings");
+    Console.WriteLine("\nYou can specify a custom endpoint using:");
+    Console.WriteLine("  - Command line: dotnet run -- <endpoint-url>");
+    Console.WriteLine("  - Environment variable: PME_ENDPOINT_URL=<endpoint-url>");
+    
+    Environment.Exit(1);
+}
 catch (Exception ex)
 {
     Console.WriteLine($"Error calling web service: {ex.Message}");
@@ -57,11 +86,47 @@ catch (Exception ex)
     {
         Console.WriteLine($"Inner Exception: {ex.InnerException.Message}");
     }
+    Environment.Exit(1);
 }
 
-static async Task<GetWebServiceInformationResponse?> GetWebServiceInformationAsync()
+static string? GetEndpointUrl(string[] args)
 {
-    using (var client = new DataExchangeClient())
+    // First priority: command-line argument
+    if (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
+    {
+        return args[0];
+    }
+    
+    // Second priority: environment variable
+    string? envEndpoint = Environment.GetEnvironmentVariable("PME_ENDPOINT_URL");
+    if (!string.IsNullOrWhiteSpace(envEndpoint))
+    {
+        return envEndpoint;
+    }
+    
+    // Use default (null means use the default from WSDL)
+    return null;
+}
+
+static async Task<GetWebServiceInformationResponse?> GetWebServiceInformationAsync(string? endpointUrl)
+{
+    DataExchangeClient client;
+    
+    if (!string.IsNullOrWhiteSpace(endpointUrl))
+    {
+        // Use custom endpoint
+        client = new DataExchangeClient(
+            DataExchangeClient.EndpointConfiguration.CustomBinding_IDataExchange,
+            endpointUrl
+        );
+    }
+    else
+    {
+        // Use default endpoint from WSDL
+        client = new DataExchangeClient();
+    }
+    
+    using (client)
     {
         var request = new GetWebServiceInformationRequest
         {
