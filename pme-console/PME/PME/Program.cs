@@ -5,12 +5,12 @@ Console.WriteLine("PME SOAP Service Client");
 Console.WriteLine("=======================\n");
 
 // Get endpoint URL from command-line args, environment variable, or use default
-string? endpointUrl = GetEndpointUrl(args);
+string endpointUrl = GetEndpointUrl(args);
 
 // Get credentials from environment variables
 var credentials = GetCredentials();
 
-Console.WriteLine($"Using endpoint: {endpointUrl ?? "default"}");
+Console.WriteLine($"Using endpoint: {endpointUrl}");
 if (credentials.HasValue)
 {
     Console.WriteLine($"Using authentication: {credentials.Value.Username}");
@@ -67,7 +67,7 @@ try
 catch (EndpointNotFoundException ex)
 {
     Console.WriteLine("ERROR: Unable to connect to the SOAP service endpoint.");
-    Console.WriteLine($"Endpoint: {endpointUrl ?? "http://beitvmpme01.beitm.id/EWS/DataExchange.svc"}");
+    Console.WriteLine($"Endpoint: {endpointUrl}");
     Console.WriteLine($"\nDetails: {ex.Message}");
     
     if (ex.InnerException != null)
@@ -97,7 +97,7 @@ catch (Exception ex)
     Environment.Exit(1);
 }
 
-static string? GetEndpointUrl(string[] args)
+static string GetEndpointUrl(string[] args)
 {
     // First priority: command-line argument
     if (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
@@ -112,8 +112,8 @@ static string? GetEndpointUrl(string[] args)
         return envEndpoint;
     }
     
-    // Use default (null means use the default from WSDL)
-    return null;
+    // Use default endpoint from WSDL
+    return "http://beitvmpme01.beitm.id/EWS/DataExchange.svc";
 }
 
 static (string Username, string Password)? GetCredentials()
@@ -130,24 +130,14 @@ static (string Username, string Password)? GetCredentials()
 }
 
 static async Task<GetWebServiceInformationResponse?> GetWebServiceInformationAsync(
-    string? endpointUrl, 
+    string endpointUrl, 
     (string Username, string Password)? credentials)
 {
-    DataExchangeClient client;
-    
-    if (!string.IsNullOrWhiteSpace(endpointUrl))
-    {
-        // Use custom endpoint
-        client = new DataExchangeClient(
-            DataExchangeClient.EndpointConfiguration.CustomBinding_IDataExchange,
-            endpointUrl
-        );
-    }
-    else
-    {
-        // Use default endpoint from WSDL
-        client = new DataExchangeClient();
-    }
+    // Use custom endpoint
+    var client = new DataExchangeClient(
+        DataExchangeClient.EndpointConfiguration.CustomBinding_IDataExchange,
+        endpointUrl
+    );
     
     using (client)
     {
