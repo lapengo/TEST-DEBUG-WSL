@@ -52,7 +52,7 @@ try
         }
 
         // Call GetWebServiceInformation
-        var request = new GetWebServiceInformationRequest { version = "1.0" };
+        var request = new GetWebServiceInformationRequest { version = "2" };
         var response = await client.GetWebServiceInformationAsync(request);
         var serviceInfo = response?.GetWebServiceInformationResponse;
 
