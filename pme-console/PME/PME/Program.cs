@@ -1,22 +1,21 @@
 ﻿using WSDL;
 using System.ServiceModel;
-using dotenv.net;
+using Microsoft.Extensions.Configuration;
 
-// Load .env file if it exists
-var dotEnvOptions = new DotEnvOptions(
-    envFilePaths: new[] { ".env", "../.env", "../../.env", "../../../.env" },
-    ignoreExceptions: true
-);
-DotEnv.Load(dotEnvOptions);
+// Load configuration from appsettings.json
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .Build();
 
 Console.WriteLine("PME SOAP Service Client");
 Console.WriteLine("=======================\n");
 
-// Get endpoint URL from command-line args, environment variable, or use default
-string endpointUrl = GetEndpointUrl(args);
+// Get endpoint URL from command-line args or configuration
+string endpointUrl = GetEndpointUrl(args, configuration);
 
-// Get credentials from environment variables
-var credentials = GetCredentials();
+// Get credentials from configuration
+var credentials = GetCredentials(configuration);
 
 // Display configuration source
 Console.WriteLine("Configuration loaded:");
@@ -24,19 +23,15 @@ if (args.Length > 0)
 {
     Console.WriteLine("  Endpoint: Command-line argument");
 }
-else if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PME_ENDPOINT_URL")))
-{
-    Console.WriteLine("  Endpoint: Environment variable (PME_ENDPOINT_URL)");
-}
 else
 {
-    Console.WriteLine("  Endpoint: Default");
+    Console.WriteLine("  Endpoint: appsettings.json");
 }
 
 if (credentials.HasValue)
 {
-    Console.WriteLine($"  Username: Environment variable (PME_USERNAME={credentials.Value.Username})");
-    Console.WriteLine($"  Password: Environment variable (PME_PASSWORD=***)");
+    Console.WriteLine($"  Username: {credentials.Value.Username}");
+    Console.WriteLine($"  Password: ***");
 }
 else
 {
@@ -118,9 +113,8 @@ catch (EndpointNotFoundException ex)
     Console.WriteLine("3. Ensure the service is running on the target server");
     Console.WriteLine("4. Check firewall settings");
     Console.WriteLine("\nConfiguration options:");
+    Console.WriteLine("  - Edit appsettings.json to change endpoint URL and credentials");
     Console.WriteLine("  - Command line: dotnet run -- <endpoint-url>");
-    Console.WriteLine("  - Environment variable: PME_ENDPOINT_URL=<endpoint-url>");
-    Console.WriteLine("  - Credentials: PME_USERNAME and PME_PASSWORD environment variables");
     
     Environment.Exit(1);
 }
@@ -134,7 +128,7 @@ catch (Exception ex)
     Environment.Exit(1);
 }
 
-static string GetEndpointUrl(string[] args)
+static string GetEndpointUrl(string[] args, IConfiguration configuration)
 {
     // First priority: command-line argument
     if (args.Length > 0 && !string.IsNullOrWhiteSpace(args[0]))
@@ -142,21 +136,21 @@ static string GetEndpointUrl(string[] args)
         return args[0];
     }
     
-    // Second priority: environment variable
-    string? envEndpoint = Environment.GetEnvironmentVariable("PME_ENDPOINT_URL");
-    if (!string.IsNullOrWhiteSpace(envEndpoint))
+    // Second priority: appsettings.json
+    string? endpoint = configuration["PmeService:EndpointUrl"];
+    if (!string.IsNullOrWhiteSpace(endpoint))
     {
-        return envEndpoint;
+        return endpoint;
     }
     
     // Use default endpoint from WSDL
     return "http://beitvmpme01.beitm.id/EWS/DataExchange.svc";
 }
 
-static (string Username, string Password)? GetCredentials()
+static (string Username, string Password)? GetCredentials(IConfiguration configuration)
 {
-    string? username = Environment.GetEnvironmentVariable("PME_USERNAME");
-    string? password = Environment.GetEnvironmentVariable("PME_PASSWORD");
+    string? username = configuration["PmeService:Username"];
+    string? password = configuration["PmeService:Password"];
     
     if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
     {
@@ -178,11 +172,14 @@ static async Task<GetWebServiceInformationResponse?> GetWebServiceInformationAsy
     
     using (client)
     {
-        // Configure credentials if provided
+        // Configure Digest authentication if credentials are provided
         if (credentials.HasValue)
         {
-            client.ClientCredentials.UserName.UserName = credentials.Value.Username;
-            client.ClientCredentials.UserName.Password = credentials.Value.Password;
+            // Use HttpDigest authentication for Digest authentication scheme
+            client.ClientCredentials.HttpDigest.ClientCredential = 
+                new System.Net.NetworkCredential(
+                    credentials.Value.Username, 
+                    credentials.Value.Password);
         }
         
         var request = new GetWebServiceInformationRequest

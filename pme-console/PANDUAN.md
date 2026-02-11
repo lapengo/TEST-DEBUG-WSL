@@ -2,28 +2,32 @@
 
 ## Cara Tercepat (Rekomendasi)
 
-### 1. Buat file .env
+### 1. Buat file appsettings.json
 
 Buka terminal dan jalankan:
 
 ```bash
 cd pme-console/PME/PME
-cp ../../../.env.example .env
+cp appsettings.example.json appsettings.json
 ```
 
-### 2. Edit file .env (opsional)
+### 2. Edit file appsettings.json
 
-File `.env` sudah berisi konfigurasi default yang bisa langsung digunakan:
+File `appsettings.json` berisi konfigurasi endpoint dan kredensial:
 
+```json
+{
+  "PmeService": {
+    "EndpointUrl": "http://beitvmpme01.beitm.id/EWS/DataExchange.svc",
+    "Username": "supervisor",
+    "Password": "P@ssw0rdpme"
+  }
+}
 ```
-PME_ENDPOINT_URL=http://beitvmpme01.beitm.id/EWS/DataExchange.svc
-PME_USERNAME=supervisor
-PME_PASSWORD=P@ssw0rdpme
-```
 
-Jika perlu mengubah, edit file `.env` dengan text editor:
-- Windows: `notepad .env`
-- Linux/Mac: `nano .env` atau `vim .env`
+Jika perlu mengubah, edit file `appsettings.json` dengan text editor:
+- Windows: `notepad appsettings.json`
+- Linux/Mac: `nano appsettings.json` atau `vim appsettings.json`
 
 ### 3. Jalankan aplikasi
 
@@ -33,25 +37,26 @@ dotnet run
 
 **Selesai!** Tidak perlu lagi menulis username, password, atau URL secara manual setiap kali.
 
-## Keuntungan Menggunakan .env File
+## Keuntungan Menggunakan appsettings.json
 
 ✅ **Tidak perlu export/set environment variable manual**  
-✅ **Konfigurasi tersimpan, tinggal jalankan `dotnet run`**  
-✅ **File .env tidak akan di-commit ke git (aman)**  
-✅ **Mudah berganti konfigurasi (tinggal edit file .env)**
+✅ **Konfigurasi tersimpan dalam file JSON yang mudah diedit**  
+✅ **File appsettings.json tidak akan di-commit ke git (aman)**  
+✅ **Mudah berganti konfigurasi (tinggal edit file appsettings.json)**  
+✅ **Menggunakan Digest authentication yang lebih aman**
 
 ## Output Aplikasi
 
-Ketika berhasil load konfigurasi dari .env file:
+Ketika berhasil load konfigurasi dari appsettings.json:
 
 ```
 PME SOAP Service Client
 =======================
 
 Configuration loaded:
-  Endpoint: Environment variable (PME_ENDPOINT_URL)
-  Username: Environment variable (PME_USERNAME=supervisor)
-  Password: Environment variable (PME_PASSWORD=***)
+  Endpoint: appsettings.json
+  Username: supervisor
+  Password: ***
 
 Using endpoint: http://beitvmpme01.beitm.id/EWS/DataExchange.svc
 Using authentication: supervisor
@@ -59,52 +64,49 @@ Using authentication: supervisor
 
 ## Troubleshooting
 
-### Jika masih perlu input manual:
+### Jika file appsettings.json tidak ada:
 
-Pastikan file `.env` ada di folder yang benar:
+Pastikan file `appsettings.json` ada di folder yang benar:
 ```bash
 # Harus di folder ini:
-ls pme-console/PME/PME/.env
+ls pme-console/PME/PME/appsettings.json
 
-# Jika tidak ada, copy dari .env.example:
-cp pme-console/.env.example pme-console/PME/PME/.env
+# Jika tidak ada, copy dari appsettings.example.json:
+cp pme-console/PME/PME/appsettings.example.json pme-console/PME/PME/appsettings.json
 ```
 
 ### Jika credential tidak ter-load:
 
-Cek isi file `.env`:
+Cek isi file `appsettings.json`:
 ```bash
-cat pme-console/PME/PME/.env
+cat pme-console/PME/PME/appsettings.json
 ```
 
-Pastikan format nya benar (tanpa tanda # di depan):
+Pastikan format nya benar (valid JSON):
+```json
+{
+  "PmeService": {
+    "EndpointUrl": "http://beitvmpme01.beitm.id/EWS/DataExchange.svc",
+    "Username": "supervisor",
+    "Password": "P@ssw0rdpme"
+  }
+}
 ```
-PME_USERNAME=supervisor
-PME_PASSWORD=P@ssw0rdpme
-```
+
+### Error "The HTTP request is unauthorized with client authentication scheme 'Anonymous'":
+
+Error ini menunjukkan bahwa kredensial tidak dikonfigurasi dengan benar. Aplikasi sekarang menggunakan **Digest authentication** yang lebih aman. Pastikan:
+1. File `appsettings.json` ada dan berisi username dan password yang benar
+2. Format JSON valid
 
 ### Error koneksi "No such host is known":
 
 Error ini normal jika server `beitvmpme01.beitm.id` tidak bisa diakses dari jaringan Anda.
 Solusi:
 1. Pastikan VPN terhubung (jika diperlukan)
-2. Atau ganti endpoint di file `.env` dengan server yang bisa diakses
+2. Atau ganti endpoint di file `appsettings.json` dengan server yang bisa diakses
 
 ## Cara Lain (Opsional)
-
-### Menggunakan environment variable manual (cara lama):
-
-```bash
-# Windows PowerShell
-$env:PME_USERNAME="supervisor"
-$env:PME_PASSWORD="P@ssw0rdpme"
-dotnet run
-
-# Linux/Mac
-export PME_USERNAME=supervisor
-export PME_PASSWORD='P@ssw0rdpme'
-dotnet run
-```
 
 ### Menggunakan command line argument (untuk endpoint saja):
 
@@ -115,6 +117,14 @@ dotnet run -- http://server-lain.com/EWS/DataExchange.svc
 ## Prioritas Konfigurasi
 
 1. Command-line argument (paling tinggi)
-2. Environment variable manual
-3. File .env (otomatis)
-4. Default hardcoded (paling rendah)
+2. File appsettings.json
+3. Default hardcoded (paling rendah)
+
+## Keamanan
+
+- File `appsettings.json` **TIDAK** akan di-commit ke git (dilindungi oleh .gitignore)
+- Password tidak ditampilkan di output (ditampilkan sebagai ***)
+- Aplikasi menggunakan **Digest authentication** (MD5 atau SHA-256) yang lebih aman daripada Basic authentication
+- **PERINGATAN**: Endpoint default menggunakan HTTP (bukan HTTPS), data dikirim dalam plaintext
+  - Untuk production, pastikan menggunakan HTTPS
+  - Atau pastikan server hanya bisa diakses dalam jaringan privat/aman

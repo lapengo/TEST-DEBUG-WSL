@@ -19,6 +19,8 @@ bld/
 .env.local
 *.env
 !.env.example
+appsettings.json
+!appsettings.example.json
 
 # Visual Studio cache/options
 .vs/
