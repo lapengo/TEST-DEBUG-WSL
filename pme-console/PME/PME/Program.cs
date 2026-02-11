@@ -1,5 +1,13 @@
 ﻿using WSDL;
 using System.ServiceModel;
+using dotenv.net;
+
+// Load .env file if it exists
+var dotEnvOptions = new DotEnvOptions(
+    envFilePaths: new[] { ".env", "../.env", "../../.env", "../../../.env" },
+    ignoreExceptions: true
+);
+DotEnv.Load(dotEnvOptions);
 
 DotNetEnv.Env.Load();
 
@@ -12,10 +20,39 @@ string endpointUrl = GetEndpointUrl(args);
 // Get credentials from environment variables
 var credentials = GetCredentials();
 
-Console.WriteLine($"Using endpoint: {endpointUrl}");
+// Display configuration source
+Console.WriteLine("Configuration loaded:");
+if (args.Length > 0)
+{
+    Console.WriteLine("  Endpoint: Command-line argument");
+}
+else if (!string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("PME_ENDPOINT_URL")))
+{
+    Console.WriteLine("  Endpoint: Environment variable (PME_ENDPOINT_URL)");
+}
+else
+{
+    Console.WriteLine("  Endpoint: Default");
+}
+
+if (credentials.HasValue)
+{
+    Console.WriteLine($"  Username: Environment variable (PME_USERNAME={credentials.Value.Username})");
+    Console.WriteLine($"  Password: Environment variable (PME_PASSWORD=***)");
+}
+else
+{
+    Console.WriteLine("  Authentication: Not configured");
+}
+
+Console.WriteLine($"\nUsing endpoint: {endpointUrl}");
 if (credentials.HasValue)
 {
     Console.WriteLine($"Using authentication: {credentials.Value.Username}");
+}
+else
+{
+    Console.WriteLine("WARNING: No credentials configured. Authentication may fail.");
 }
 Console.WriteLine();
 
