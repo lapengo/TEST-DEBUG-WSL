@@ -1,0 +1,154 @@
+﻿// See https://aka.ms/new-console-template for more information
+using WSDL;
+
+Console.WriteLine("=== PME DataExchange SOAP Client ===");
+
+// Buat client untuk connect ke service
+var client = new DataExchangeClient();
+
+try
+{
+    // 1. GetWebServiceInformation - Mendapatkan informasi service
+    Console.WriteLine("\n1. Getting Web Service Information...");
+    var wsInfoRequest = new GetWebServiceInformationRequest1
+    {
+        GetWebServiceInformationRequest = new GetWebServiceInformationRequest
+        {
+            version = "1.0"
+        }
+    };
+    var wsInfo = await client.GetWebServiceInformationAsync(wsInfoRequest);
+    Console.WriteLine($"Service Version: {wsInfo.GetWebServiceInformationResponse.GetWebServiceInformationVersion.MajorVersion}");
+    Console.WriteLine($"System Name: {wsInfo.GetWebServiceInformationResponse.SystemInfo?.Name}");
+
+    // 2. GetContainerItems - Mendapatkan items dari container
+    Console.WriteLine("\n2. Getting Container Items...");
+    var containerRequest = new GetContainerItemsRequest1
+    {
+        GetContainerItemsRequest = new GetContainerItemsRequest
+        {
+            version = "1.0",
+            metadata = false,
+            GetContainerItemsIds = new[] { "ROOT" } // Ganti dengan ID container yang sesuai
+        }
+    };
+    var containerItems = await client.GetContainerItemsAsync(containerRequest);
+    if (containerItems.GetContainerItemsResponse.GetContainerItemsItems?.Length > 0)
+    {
+        foreach (var item in containerItems.GetContainerItemsResponse.GetContainerItemsItems)
+        {
+            Console.WriteLine($"  - {item.Name} (ID: {item.Id})");
+        }
+    }
+
+    // 3. GetValues - Mendapatkan nilai dari value items
+    Console.WriteLine("\n3. Getting Values...");
+    var valuesRequest = new GetValuesRequest1
+    {
+        GetValuesRequest = new GetValuesRequest
+        {
+            version = "1.0",
+            GetValuesIds = new[] { "ITEM_ID_1", "ITEM_ID_2" } // Ganti dengan ID item yang valid
+        }
+    };
+    var values = await client.GetValuesAsync(valuesRequest);
+    if (values.GetValuesResponse.GetValuesItems?.Length > 0)
+    {
+        foreach (var item in values.GetValuesResponse.GetValuesItems)
+        {
+            Console.WriteLine($"  - ID: {item.Id}, Value: {item.Value}, State: {item.State}");
+        }
+    }
+
+    // 4. SetValues - Set nilai ke item
+    Console.WriteLine("\n4. Setting Values...");
+    var setValuesRequest = new SetValuesRequest1
+    {
+        SetValuesRequest = new SetValuesRequest
+        {
+            version = "1.0",
+            SetValuesItems = new[]
+            {
+                new ValueTypeStateless
+                {
+                    Id = "ITEM_ID_1",
+                    Value = "100"
+                }
+            }
+        }
+    };
+    var setResult = await client.SetValuesAsync(setValuesRequest);
+    if (setResult.SetValuesResponse.SetValuesResults?.Length > 0)
+    {
+        foreach (var result in setResult.SetValuesResponse.SetValuesResults)
+        {
+            Console.WriteLine($"  - ID: {result.Id}, Success: {result.Success}, Message: {result.Message}");
+        }
+    }
+
+    // 5. GetAlarmEvents - Mendapatkan alarm events
+    Console.WriteLine("\n5. Getting Alarm Events...");
+    var alarmRequest = new GetAlarmEventsRequest1
+    {
+        GetAlarmEventsRequest = new GetAlarmEventsRequest
+        {
+            version = "1.0",
+            metadata = false,
+            GetAlarmEventsParameter = new GetAlarmEventsRequestGetAlarmEventsParameter(),
+            GetAlarmEventsFilter = new GetAlarmEventsRequestGetAlarmEventsFilter
+            {
+                PriorityFrom = "0",
+                PriorityTo = "255"
+            }
+        }
+    };
+    var alarms = await client.GetAlarmEventsAsync(alarmRequest);
+    if (alarms.GetAlarmEventsResponse.GetAlarmEventsAlarmEvents?.Length > 0)
+    {
+        foreach (var alarm in alarms.GetAlarmEventsResponse.GetAlarmEventsAlarmEvents)
+        {
+            Console.WriteLine($"  - ID: {alarm.ID}, Message: {alarm.Message}, Priority: {alarm.Priority}");
+        }
+    }
+
+    // 6. GetEnums - Mendapatkan enum values
+    Console.WriteLine("\n6. Getting Enums...");
+    var enumsRequest = new GetEnumsRequest1
+    {
+        GetEnumsRequest = new GetEnumsRequest
+        {
+            version = "1.0",
+            GetEnumIds = new[] { "ENUM_ID_1" } // Ganti dengan ID enum yang valid
+        }
+    };
+    var enums = await client.GetEnumsAsync(enumsRequest);
+    if (enums.GetEnumsResponse.GetEnumsEnums?.Length > 0)
+    {
+        foreach (var enumType in enums.GetEnumsResponse.GetEnumsEnums)
+        {
+            Console.WriteLine($"  Enum: {enumType.Name} (ID: {enumType.Id})");
+            if (enumType.EnumValues?.Length > 0)
+            {
+                foreach (var enumValue in enumType.EnumValues)
+                {
+                    Console.WriteLine($"    - {enumValue.Text}: {enumValue.Value}");
+                }
+            }
+        }
+    }
+
+    Console.WriteLine("\n=== Selesai ===");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"\nError: {ex.Message}");
+    Console.WriteLine($"Detail: {ex}");
+}
+finally
+{
+    // Tutup connection
+    if (client.State == System.ServiceModel.CommunicationState.Opened)
+    {
+        await client.CloseAsync();
+    }
+}
