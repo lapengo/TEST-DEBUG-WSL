@@ -18,16 +18,16 @@ The service requires username and password authentication. Configure credentials
 
 ```bash
 # Linux/macOS
-export PME_USERNAME=supervisor
-export PME_PASSWORD='P@ssw0rdpme'
+export PME_USERNAME=your-username
+export PME_PASSWORD='your-password'
 
 # Windows PowerShell
-$env:PME_USERNAME="supervisor"
-$env:PME_PASSWORD="P@ssw0rdpme"
+$env:PME_USERNAME="your-username"
+$env:PME_PASSWORD="your-password"
 
 # Windows Command Prompt
-set PME_USERNAME=supervisor
-set PME_PASSWORD=P@ssw0rdpme
+set PME_USERNAME=your-username
+set PME_PASSWORD=your-password
 ```
 
 ### Endpoint Configuration
@@ -49,20 +49,20 @@ Set the `PME_ENDPOINT_URL` environment variable:
 ```bash
 # Linux/macOS
 export PME_ENDPOINT_URL=http://your-server.com/EWS/DataExchange.svc
-export PME_USERNAME=supervisor
-export PME_PASSWORD='P@ssw0rdpme'
+export PME_USERNAME=your-username
+export PME_PASSWORD='your-password'
 dotnet run --project PME.csproj
 
 # Windows PowerShell
 $env:PME_ENDPOINT_URL="http://your-server.com/EWS/DataExchange.svc"
-$env:PME_USERNAME="supervisor"
-$env:PME_PASSWORD="P@ssw0rdpme"
+$env:PME_USERNAME="your-username"
+$env:PME_PASSWORD="your-password"
 dotnet run --project PME.csproj
 
 # Windows Command Prompt
 set PME_ENDPOINT_URL=http://your-server.com/EWS/DataExchange.svc
-set PME_USERNAME=supervisor
-set PME_PASSWORD=P@ssw0rdpme
+set PME_USERNAME=your-username
+set PME_PASSWORD=your-password
 dotnet run --project PME.csproj
 ```
 
@@ -72,15 +72,15 @@ dotnet run --project PME.csproj
 
 ```bash
 # Linux/macOS
-export PME_USERNAME=supervisor
-export PME_PASSWORD='P@ssw0rdpme'
+export PME_USERNAME=your-username
+export PME_PASSWORD='your-password'
 cd pme-console/PME
 dotnet run --project PME.csproj
 
 # Or with custom endpoint
-export PME_ENDPOINT_URL=http://beitvmpme01.beitm.id/EWS/DataExchange.svc
-export PME_USERNAME=supervisor
-export PME_PASSWORD='P@ssw0rdpme'
+export PME_ENDPOINT_URL=http://your-server.com/EWS/DataExchange.svc
+export PME_USERNAME=your-username
+export PME_PASSWORD='your-password'
 dotnet run --project PME.csproj
 ```
 
@@ -142,8 +142,15 @@ You can specify a custom endpoint using:
 
 - **Never commit credentials to source control**
 - Use environment variables to store sensitive credentials
-- The password is transmitted over the network - ensure you're using HTTPS in production
+- **CRITICAL SECURITY WARNING**: The default endpoint uses HTTP (not HTTPS), which means credentials and all data are transmitted in plaintext over the network. This is a significant security risk.
+  - For production use, ensure the service is configured to use HTTPS
+  - If HTTPS is not available, ensure the service is only accessible on a secure/private network
+  - Consider the security implications before transmitting credentials over HTTP
+- Use the `.env.example` file as a template and create a `.env` file with your actual credentials
+- The `.env` file is automatically excluded from git commits via `.gitignore`
 - Consider using a secure credential store for production deployments
+- Rotate passwords regularly
+- Use strong, unique passwords
 
 ## Implementation Details
 
@@ -185,15 +192,7 @@ If you encounter authentication errors:
 - Verify the username and password are correct
 - Ensure `PME_USERNAME` and `PME_PASSWORD` environment variables are set
 - Check that the credentials have the necessary permissions
-
-## Default Credentials
-
-For the default PME server at `http://beitvmpme01.beitm.id/EWS/DataExchange.svc`:
-- WSDL URL: `http://beitvmpme01.beitm.id/EWS/DataExchange.svc?singleWsdl`
-- Default Username: `supervisor`
-- Default Password: Contact your system administrator
-
-Set these using environment variables before running the application.
+- Contact your system administrator for the correct credentials
 
 ## Notes
 
@@ -201,3 +200,4 @@ Set these using environment variables before running the application.
 - The application includes comprehensive error handling for network and SOAP faults
 - Build artifacts are excluded from source control via `.gitignore`
 - The application exits with code 1 on errors for easier integration in scripts/CI
+- **Security**: Default configuration uses HTTP - see Security Considerations section for important warnings
