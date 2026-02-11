@@ -18,7 +18,7 @@ File `appsettings.json` berisi konfigurasi endpoint dan kredensial:
 ```json
 {
   "PmeService": {
-    "EndpointUrl": "http://beitvmpme01.beitm.id/EWS/DataExchange.svc",
+    "EndpointUrl": "http://beitvmpme01.beitm.id/EWS/DataExchange.svc?singleWsdl",
     "Username": "supervisor",
     "Password": "P@ssw0rdpme"
   }

@@ -144,7 +144,7 @@ static string GetEndpointUrl(string[] args, IConfiguration configuration)
     }
     
     // Use default endpoint from WSDL
-    return "http://beitvmpme01.beitm.id/EWS/DataExchange.svc";
+    return "http://beitvmpme01.beitm.id/EWS/DataExchange.svc?singleWsdl";
 }
 
 static (string Username, string Password)? GetCredentials(IConfiguration configuration)
