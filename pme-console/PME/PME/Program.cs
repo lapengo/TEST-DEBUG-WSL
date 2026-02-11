@@ -84,6 +84,8 @@ try
             Console.WriteLine("No data received from service.");
         }
     }
+    
+    Console.WriteLine("\n--- Execution completed successfully ---");
 }
 catch (Exception ex)
 {
@@ -92,5 +94,8 @@ catch (Exception ex)
     {
         Console.WriteLine($"Details: {ex.InnerException.Message}");
     }
-    Environment.Exit(1);
+    Console.WriteLine("\n--- Execution completed with errors ---");
 }
+
+Console.WriteLine("\nPress any key to exit...");
+Console.ReadKey();
