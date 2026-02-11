@@ -155,8 +155,8 @@ static string GetEndpointUrl(string[] args)
 
 static (string Username, string Password)? GetCredentials()
 {
-    string? username = "supervisor";
-    string? password = "P@ssw0rdpme";
+    string? username = Environment.GetEnvironmentVariable("PME_USERNAME");
+    string? password = Environment.GetEnvironmentVariable("PME_PASSWORD");
     
     if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password))
     {
