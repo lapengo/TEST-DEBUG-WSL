@@ -15,7 +15,6 @@ Aplikasi console .NET 10 untuk berkomunikasi dengan Schneider Electric Power Mon
 ### Prerequisites
 - .NET 10 SDK
 - Akses ke PME server: `http://beitvmpme01.beitm.id/EWS/DataExchange.svc`
-- Username dan Password untuk autentikasi Digest
 
 ### Installation & Run
 
@@ -27,33 +26,35 @@ cd TEST-DEBUG-WSL/PME
 # Build project
 dotnet build
 
-# Run aplikasi (akan meminta username & password)
-dotnet run
-
-# Atau set environment variables untuk credentials
-export PME_USERNAME="your_username"
-export PME_PASSWORD="your_password"
+# Run aplikasi
 dotnet run
 ```
 
-### Authentication
+### Configuration
 
-Aplikasi ini menggunakan **HTTP Digest Authentication** untuk mengakses SOAP service. Ada 2 cara untuk menyediakan credentials:
+Aplikasi ini menggunakan **appsettings.json** untuk konfigurasi. Semua settings sudah dikonfigurasi di file tersebut:
 
-1. **Interactive Input** - Aplikasi akan meminta username dan password saat dijalankan
-2. **Environment Variables** - Set `PME_USERNAME` dan `PME_PASSWORD` sebelum menjalankan aplikasi
-
-```bash
-# Windows (PowerShell)
-$env:PME_USERNAME="username"
-$env:PME_PASSWORD="password"
-dotnet run
-
-# Linux/Mac
-export PME_USERNAME="username"
-export PME_PASSWORD="password"
-dotnet run
+```json
+{
+  "PmeSettings": {
+    "ServiceUrl": "http://beitvmpme01.beitm.id/EWS/DataExchange.svc",
+    "Username": "supervisor",
+    "Password": "P@ssw0rdpme",
+    "Version": "2"
+  }
+}
 ```
+
+**Untuk mengubah konfigurasi:**
+1. Edit file `appsettings.json`
+2. Ubah nilai ServiceUrl, Username, Password, atau Version sesuai kebutuhan
+3. Save file dan run aplikasi
+
+**Keuntungan menggunakan appsettings.json:**
+- ✅ Mudah di-maintenance - semua konfigurasi di satu tempat
+- ✅ Tidak perlu input manual setiap kali run aplikasi
+- ✅ Bisa di-version control atau di-customize per environment
+- ✅ Lebih professional dan standard untuk .NET applications
 
 ## Output Example
 
@@ -62,11 +63,11 @@ dotnet run
 PME DataExchange SOAP Client - GetWebServiceInformation Demo
 ================================================================================
 
-Masukkan Username: admin
-Masukkan Password: ********
+Konfigurasi dimuat dari appsettings.json
 
 Menghubungkan ke SOAP service: http://beitvmpme01.beitm.id/EWS/DataExchange.svc
-Username: admin
+Username: supervisor
+Version: 2
 
 Memanggil GetWebServiceInformation...
 

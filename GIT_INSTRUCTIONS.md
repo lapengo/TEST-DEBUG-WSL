@@ -71,32 +71,56 @@ dotnet clean
 ### Presentation Layer
 - **Program.cs**: Console application yang menampilkan output GetWebServiceInformation
 
-## Authentication
+## Configuration
 
-Aplikasi ini menggunakan **HTTP Digest Authentication** untuk mengakses SOAP service PME.
+Aplikasi ini menggunakan **appsettings.json** untuk menyimpan semua konfigurasi.
 
-### Cara Konfigurasi Credentials:
+### File appsettings.json
 
-1. **Environment Variables** (Recommended untuk production):
-```bash
-# Windows (PowerShell)
-$env:PME_USERNAME="your_username"
-$env:PME_PASSWORD="your_password"
+Lokasi: `PME/appsettings.json`
 
-# Linux/Mac
-export PME_USERNAME="your_username"
-export PME_PASSWORD="your_password"
+```json
+{
+  "PmeSettings": {
+    "ServiceUrl": "http://beitvmpme01.beitm.id/EWS/DataExchange.svc",
+    "Username": "supervisor",
+    "Password": "P@ssw0rdpme",
+    "Version": "2"
+  }
+}
 ```
 
-2. **Interactive Input** (Default):
-- Jika environment variable tidak di-set, aplikasi akan meminta input username dan password
-- Password di-mask dengan karakter `*` untuk keamanan
+### Configuration Properties:
+
+| Property | Deskripsi | Default Value |
+|----------|-----------|---------------|
+| ServiceUrl | URL endpoint SOAP service | http://beitvmpme01.beitm.id/EWS/DataExchange.svc |
+| Username | Username untuk autentikasi Digest | supervisor |
+| Password | Password untuk autentikasi Digest | P@ssw0rdpme |
+| Version | Versi API yang diminta | 2 |
+
+### Cara Mengubah Konfigurasi:
+
+1. Buka file `appsettings.json`
+2. Edit nilai yang ingin diubah
+3. Save file
+4. Run aplikasi - konfigurasi baru akan langsung digunakan
+
+### Keuntungan appsettings.json:
+- ✅ **Mudah di-maintenance** - Semua konfigurasi di satu file
+- ✅ **Tidak perlu recompile** - Ubah konfigurasi tanpa rebuild aplikasi
+- ✅ **Standard .NET approach** - Mengikuti best practice .NET
+- ✅ **Environment-specific** - Bisa buat appsettings.Development.json, appsettings.Production.json, dll
+- ✅ **Version control friendly** - Mudah track perubahan konfigurasi
 
 ### Security Notes:
-- Jangan hardcode credentials di source code
-- Gunakan environment variables untuk production
-- Password tidak ditampilkan di console (masked input)
-- Credentials tidak di-log atau disimpan
+- ⚠️ Jangan commit appsettings.json yang berisi password production ke Git public repository
+- 🔒 Untuk production, gunakan appsettings.Production.json yang di-gitignore
+- 🔐 Atau gunakan Azure Key Vault / environment variables untuk sensitive data
+
+## Authentication
+
+Aplikasi ini menggunakan **HTTP Digest Authentication** untuk mengakses SOAP service PME. Credentials dan URL dikonfigurasi di **appsettings.json**.
 
 ## Method yang Tersedia
 
@@ -109,13 +133,19 @@ Method ini digunakan untuk mendapatkan informasi tentang web service, termasuk:
 
 **Usage:**
 ```csharp
-// Dengan credentials
-using var service = new DataExchangeService(serviceUrl, username, password);
-var request = new WebServiceInfoRequestDto { Version = null };
-var response = await service.GetWebServiceInformationAsync(request);
+// Load configuration
+var configuration = new ConfigurationBuilder()
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+    .Build();
 
-// Tanpa credentials (untuk testing atau jika service tidak butuh auth)
-using var service = new DataExchangeService(serviceUrl);
+var settings = new PmeSettings();
+configuration.GetSection("PmeSettings").Bind(settings);
+
+// Use configuration
+using var service = new DataExchangeService(settings.ServiceUrl, settings.Username, settings.Password);
+var request = new WebServiceInfoRequestDto { Version = settings.Version };
+var response = await service.GetWebServiceInformationAsync(request);
 ```
 
 ## Git Workflow Guidelines
@@ -189,17 +219,30 @@ File-file berikut sudah ada di `.gitignore`:
 
 ## Troubleshooting
 
-### Error: "The HTTP request is unauthorized with client authentication scheme 'Anonymous'"
-**Penyebab:** Service memerlukan autentikasi tetapi credentials tidak disediakan atau salah.
+### Error: "appsettings.json not found"
+**Penyebab:** File appsettings.json tidak ada di output directory.
 
 **Solusi:**
-1. Pastikan username dan password sudah benar
-2. Set environment variables `PME_USERNAME` dan `PME_PASSWORD`
-3. Atau masukkan credentials saat diminta oleh aplikasi
-4. Verifikasi bahwa user memiliki akses ke service
+1. Pastikan file `appsettings.json` ada di project folder
+2. Cek PME.csproj bahwa appsettings.json di-set untuk copy ke output:
+   ```xml
+   <None Update="appsettings.json">
+     <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+   </None>
+   ```
+3. Rebuild project dengan `dotnet build`
+
+### Error: "The HTTP request is unauthorized with client authentication scheme 'Anonymous'"
+**Penyebab:** Credentials di appsettings.json tidak valid atau salah.
+
+**Solusi:**
+1. Buka `appsettings.json` dan verifikasi username dan password
+2. Pastikan credentials yang digunakan memiliki akses ke service
+3. Test credentials secara manual jika memungkinkan
 
 ### Error: "Could not connect to SOAP service"
-- Cek koneksi network ke `beitvmpme01.beitm.id`
+- Cek URL di `appsettings.json` sudah benar
+- Cek koneksi network ke server yang dikonfigurasi
 - Pastikan service sedang running
 - Cek firewall settings
 
@@ -216,18 +259,17 @@ File-file berikut sudah ada di `.gitignore`:
 
 1. **Reference.cs adalah auto-generated file** - Jangan edit manual file ini. Jika perlu update WSDL, regenerate melalui Connected Services di Visual Studio.
 
-2. **Endpoint Configuration** - Endpoint SOAP service di-hardcode di `Program.cs`. Untuk production, sebaiknya dipindahkan ke configuration file.
+2. **Configuration via appsettings.json** - Semua konfigurasi (URL, credentials, version) ada di `appsettings.json`. Edit file tersebut untuk mengubah konfigurasi.
 
-3. **Authentication** - Aplikasi menggunakan HTTP Digest Authentication. Credentials dapat disediakan melalui:
-   - Environment variables (`PME_USERNAME`, `PME_PASSWORD`) - Recommended
-   - Interactive input saat aplikasi berjalan
-   - **JANGAN** hardcode credentials di source code
+3. **appsettings.json Security**:
+   - File ini berisi credentials - jangan commit ke public repository jika berisi password production
+   - Untuk production, buat `appsettings.Production.json` dan tambahkan ke `.gitignore`
+   - Alternatif: Gunakan environment variables atau Azure Key Vault untuk production
 
 4. **Security Best Practices**:
-   - Selalu gunakan environment variables untuk credentials di production
-   - Jangan commit credentials ke Git
-   - Password di-mask saat input di console
-   - Credentials tidak di-log
+   - Jangan commit credentials production ke Git
+   - Gunakan different appsettings files per environment
+   - Untuk CI/CD, inject credentials via pipeline variables
 
 5. **Timeout Settings** - Default timeout bisa di-configure di `DataExchangeClient` jika diperlukan untuk operasi yang lama.
 

@@ -15,6 +15,7 @@ Berhasil mengimplementasikan console application untuk menampilkan output dari S
   - System information
 - ✅ `VersionInfo.cs` - Nested DTO untuk informasi versi
 - ✅ `SystemInfo.cs` - Nested DTO untuk informasi sistem
+- ✅ `PmeSettings.cs` - **NEW** - Configuration model untuk appsettings.json
 
 ### 2. **Service Layer** (Clean Architecture)
 - ✅ `DataExchangeService.cs` - Service class dengan features:
@@ -26,33 +27,40 @@ Berhasil mengimplementasikan console application untuk menampilkan output dari S
 
 ### 3. **Console Application**
 - ✅ `Program.cs` - Main application dengan:
+  - **Configuration via appsettings.json** - Mudah di-maintenance
   - Formatted output yang rapi dan mudah dibaca
-  - **Credential input** melalui environment variables atau interactive prompt
-  - **Masked password input** untuk keamanan
   - Display semua informasi dari SOAP response
   - Error handling dan error messages yang jelas
   - User-friendly interface
 
-### 4. **Dokumentasi Lengkap**
-- ✅ `README.md` - Quick start guide dengan authentication instructions
+### 4. **Configuration** ⭐ NEW
+- ✅ `appsettings.json` - Centralized configuration file:
+  - ServiceUrl configuration
+  - Username and Password
+  - API Version
+  - Easy to modify tanpa recompile
+
+### 5. **Dokumentasi Lengkap**
+- ✅ `README.md` - Quick start guide dengan configuration instructions
 - ✅ `GIT_INSTRUCTIONS.md` - Panduan development lengkap dengan:
   - Struktur project
   - Technology stack
-  - **Authentication configuration**
+  - **Configuration via appsettings.json**
   - Git workflow guidelines
   - Best practices
-  - Troubleshooting guide (termasuk auth errors)
+  - Troubleshooting guide
   - Commit message conventions
   
-### 5. **Build & Configuration**
+### 6. **Build & Configuration**
 - ✅ `.gitignore` - Exclude build artifacts (bin/, obj/)
 - ✅ Clean repository structure
 - ✅ Build berhasil tanpa error atau warning
+- ✅ appsettings.json copied to output directory
 
-### 6. **Security & Authentication** ⭐ NEW
+### 7. **Security & Authentication**
 - ✅ **HTTP Digest Authentication** support
-- ✅ Environment variables support (`PME_USERNAME`, `PME_PASSWORD`)
-- ✅ Interactive credential input dengan masked password
+- ✅ **Configuration-based credentials** via appsettings.json
+- ✅ No manual input required
 - ✅ No hardcoded credentials
 - ✅ Secure credential handling
 
@@ -139,34 +147,45 @@ Console akan menampilkan:
 
 - **.NET 10** - Latest .NET framework
 - **System.ServiceModel** - SOAP/WCF client dengan HTTP Digest Authentication
+- **Microsoft.Extensions.Configuration** - Configuration management
 - **Connected Services** - WSDL to C# code generation
 - **Clean Architecture** - Design pattern
 
-## 🔐 Authentication & Security
+## 🔐 Configuration & Security
+
+### Configuration via appsettings.json
+Semua konfigurasi disimpan di `appsettings.json` untuk kemudahan maintenance:
+
+```json
+{
+  "PmeSettings": {
+    "ServiceUrl": "http://beitvmpme01.beitm.id/EWS/DataExchange.svc",
+    "Username": "supervisor",
+    "Password": "P@ssw0rdpme",
+    "Version": "2"
+  }
+}
+```
+
+**Keuntungan:**
+- ✅ Mudah di-edit tanpa recompile
+- ✅ Centralized configuration
+- ✅ Support untuk multiple environments (Development, Production, dll)
+- ✅ Standard .NET approach
 
 ### HTTP Digest Authentication
 Implementasi mendukung HTTP Digest Authentication yang diperlukan oleh PME DataExchange service:
 - Support untuk MD5 dan SHA-256 algorithms
-- Credentials dapat disediakan via environment variables atau interactive input
-- Password masked saat input untuk keamanan
+- Credentials dikonfigurasi di appsettings.json
 - No hardcoded credentials di source code
-
-### Credential Management
-```bash
-# Environment Variables (Recommended)
-export PME_USERNAME="your_username"
-export PME_PASSWORD="your_password"
-
-# Interactive Input (Fallback)
-# Aplikasi akan meminta input jika env vars tidak tersedia
-```
+- Easy to change per environment
 
 ## 📚 Dokumentasi
 
 Semua dokumentasi tersedia dalam bahasa Indonesia:
-- Quick start di README.md dengan authentication guide
+- Quick start di README.md dengan configuration guide
 - Panduan lengkap di GIT_INSTRUCTIONS.md
-- Authentication troubleshooting
+- Configuration dan troubleshooting
 - Inline XML comments di code
 
 ## ✨ Highlights
@@ -180,7 +199,7 @@ Semua dokumentasi tersedia dalam bahasa Indonesia:
    - Error handling
    - Resource management
    - HTTP Digest Authentication
-   - Secure credential handling
+   - Configuration via appsettings.json
    - Security checked
 
 3. **Developer Friendly**
@@ -194,18 +213,28 @@ Semua dokumentasi tersedia dalam bahasa Indonesia:
 Implementasi berhasil diselesaikan dengan:
 - ✅ Clean architecture
 - ✅ HTTP Digest Authentication support
-- ✅ Secure credential handling
+- ✅ Configuration via appsettings.json
 - ✅ Complete documentation
 - ✅ No security issues
 - ✅ No code review issues
 - ✅ Build successful
 - ✅ Production ready
 
-### ⚡ Update Terbaru (Authentication Fix):
+### ⚡ Update Terbaru:
+
+**v1.1.0 (Authentication Fix):**
 - Fixed authentication error dengan menambahkan HTTP Digest support
 - Menambahkan credential input via environment variables atau interactive prompt
 - Password masked untuk keamanan
 - Updated documentation dengan authentication guide
+
+**v1.2.0 (Configuration via appsettings.json):**
+- ✅ Pindahkan semua konfigurasi ke appsettings.json
+- ✅ ServiceUrl, Username, Password, Version sekarang di-configure di satu file
+- ✅ Tidak perlu input manual lagi
+- ✅ Mudah di-maintenance dan di-customize per environment
+- ✅ Added Microsoft.Extensions.Configuration packages
+- ✅ Created PmeSettings model untuk strongly-typed configuration
 
 ---
 
@@ -215,4 +244,4 @@ Implementasi berhasil diselesaikan dengan:
 **Documentation:** COMPLETE ✅
 
 **Tanggal:** 2026-02-12  
-**Versi:** 1.1.0 (with Authentication)
+**Versi:** 1.2.0 (with appsettings.json Configuration)
