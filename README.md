@@ -134,10 +134,14 @@ Lihat [GIT_INSTRUCTIONS.md](./GIT_INSTRUCTIONS.md) untuk:
 - Best practices
 - Troubleshooting
 
+**Troubleshooting Koneksi:**
+Jika mengalami error koneksi ke SOAP service, lihat [TROUBLESHOOTING_KONEKSI.md](./TROUBLESHOOTING_KONEKSI.md) untuk panduan lengkap mengatasi masalah network connectivity.
+
 ## Technologies
 
 - .NET 10
 - System.ServiceModel (SOAP/WCF)
+- Microsoft.Extensions.Configuration (Configuration management)
 - Connected Services (WSDL to C# code generation)
 
 ## License

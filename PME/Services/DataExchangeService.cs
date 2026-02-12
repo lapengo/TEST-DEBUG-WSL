@@ -58,6 +58,29 @@ public class DataExchangeService : IDisposable
             
             return responseDto;
         }
+        catch (System.ServiceModel.EndpointNotFoundException ex)
+        {
+            throw new Exception(
+                $"Error saat memanggil GetWebServiceInformation: Tidak dapat menemukan endpoint SOAP service.\n" +
+                $"Kemungkinan penyebab:\n" +
+                $"  1. Server tidak running atau tidak accessible\n" +
+                $"  2. URL salah atau server name tidak bisa di-resolve (DNS issue)\n" +
+                $"  3. Network/firewall memblokir koneksi\n" +
+                $"  4. Service menggunakan HTTPS bukan HTTP\n" +
+                $"Detail: {ex.Message}", 
+                ex);
+        }
+        catch (System.ServiceModel.CommunicationException ex)
+        {
+            throw new Exception(
+                $"Error saat memanggil GetWebServiceInformation: Gagal berkomunikasi dengan SOAP service.\n" +
+                $"Kemungkinan penyebab:\n" +
+                $"  1. Koneksi network terputus\n" +
+                $"  2. Server timeout atau tidak merespon\n" +
+                $"  3. Firewall atau proxy memblokir koneksi\n" +
+                $"Detail: {ex.Message}", 
+                ex);
+        }
         catch (Exception ex)
         {
             throw new Exception($"Error saat memanggil GetWebServiceInformation: {ex.Message}", ex);

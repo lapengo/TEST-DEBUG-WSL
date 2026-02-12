@@ -133,6 +133,22 @@ catch (Exception ex)
         Console.WriteLine();
     }
     
+    // Tambahkan troubleshooting tips untuk connectivity issues
+    if (ex.Message.Contains("endpoint") || ex.Message.Contains("listening") || 
+        ex.InnerException?.Message.Contains("endpoint") == true || 
+        ex.InnerException?.Message.Contains("listening") == true)
+    {
+        Console.WriteLine("TROUBLESHOOTING TIPS:");
+        Console.WriteLine("=".PadRight(80, '='));
+        Console.WriteLine("1. Pastikan server SOAP service running dan accessible");
+        Console.WriteLine($"2. Cek apakah URL di appsettings.json benar: {settings.ServiceUrl}");
+        Console.WriteLine("3. Test koneksi dengan: ping atau curl ke server");
+        Console.WriteLine("4. Pastikan tidak ada firewall yang memblokir koneksi");
+        Console.WriteLine("5. Jika server internal, pastikan Anda terhubung ke VPN/network yang benar");
+        Console.WriteLine("6. Coba ubah HTTP ke HTTPS jika service menggunakan SSL");
+        Console.WriteLine();
+    }
+    
     Console.WriteLine("Stack Trace:");
     Console.WriteLine(ex.StackTrace);
     Console.WriteLine("=".PadRight(80, '='));

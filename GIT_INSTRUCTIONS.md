@@ -240,11 +240,18 @@ File-file berikut sudah ada di `.gitignore`:
 2. Pastikan credentials yang digunakan memiliki akses ke service
 3. Test credentials secara manual jika memungkinkan
 
-### Error: "Could not connect to SOAP service"
-- Cek URL di `appsettings.json` sudah benar
-- Cek koneksi network ke server yang dikonfigurasi
-- Pastikan service sedang running
-- Cek firewall settings
+### Error: "Could not connect to SOAP service" atau "There was no endpoint listening"
+**Penyebab:** Network connectivity issue atau service tidak accessible.
+
+**Solusi:**
+1. Cek URL di `appsettings.json` sudah benar
+2. Test koneksi dengan: `ping server-name` atau `curl http://server-name/path`
+3. Pastikan service sedang running di server
+4. Cek firewall settings
+5. Jika server internal, pastikan terhubung ke VPN/network yang benar
+6. Coba ubah HTTP ke HTTPS jika service menggunakan SSL
+
+**Untuk troubleshooting detail, lihat:** [TROUBLESHOOTING_KONEKSI.md](../TROUBLESHOOTING_KONEKSI.md)
 
 ### Error: "Build failed"
 - Run `dotnet clean`
