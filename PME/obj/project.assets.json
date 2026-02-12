@@ -1185,39 +1185,25 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\BEIT\\.nuget\\packages\\": {},
-    "C:\\Program Files\\DevExpress 22.2\\Components\\Offline Packages": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "/home/runner/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\BEIT\\REPOSITORY\\TEST-DEBUG-WSL\\PME\\PME.csproj",
+      "projectUniqueName": "/home/runner/work/TEST-DEBUG-WSL/TEST-DEBUG-WSL/PME/PME.csproj",
       "projectName": "PME",
-      "projectPath": "C:\\BEIT\\REPOSITORY\\TEST-DEBUG-WSL\\PME\\PME.csproj",
-      "packagesPath": "C:\\Users\\BEIT\\.nuget\\packages\\",
-      "outputPath": "C:\\BEIT\\REPOSITORY\\TEST-DEBUG-WSL\\PME\\obj\\",
+      "projectPath": "/home/runner/work/TEST-DEBUG-WSL/TEST-DEBUG-WSL/PME/PME.csproj",
+      "packagesPath": "/home/runner/.nuget/packages/",
+      "outputPath": "/home/runner/work/TEST-DEBUG-WSL/TEST-DEBUG-WSL/PME/obj/",
       "projectStyle": "PackageReference",
-      "fallbackFolders": [
-        "C:\\Program Files\\DevExpress 22.2\\Components\\Offline Packages",
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-      ],
       "configFilePaths": [
-        "C:\\Users\\BEIT\\AppData\\Roaming\\NuGet\\NuGet.Config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\DevExpress 22.2.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        "/home/runner/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"
       ],
       "sources": {
-        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "C:\\Program Files\\DevExpress 22.2\\Components\\System\\Components\\Packages": {},
-        "C:\\Program Files\\dotnet\\library-packs": {},
-        "C:\\Users\\Public\\Documents\\DevExpress Demos 21.2\\DevExtreme\\DevExtreme\\Bin": {},
-        "https://api.nuget.org/v3/index.json": {},
-        "https://nuget.devexpress.com/vz2aXOlyEbhJUeFsnkIyi5qRf3zahaDMv7VAN51EK6ymdZkwkk/api": {}
+        "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net10.0": {
@@ -1286,7 +1272,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.103/PortableRuntimeIdentifierGraph.json",
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/10.0.102/PortableRuntimeIdentifierGraph.json",
         "packagesToPrune": {
           "Microsoft.CSharp": "(,4.7.32767]",
           "Microsoft.VisualBasic": "(,10.4.32767]",
