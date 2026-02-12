@@ -229,14 +229,12 @@ File-file berikut sudah ada di `.gitignore`:
    - Password di-mask saat input di console
    - Credentials tidak di-log
 
-3. **Authentication** - Saat ini tidak ada authentication. Jika service memerlukan credentials, tambahkan di `DataExchangeService` constructor.
-
-4. **Timeout Settings** - Default timeout bisa di-configure di `DataExchangeClient` jika diperlukan untuk operasi yang lama.
+5. **Timeout Settings** - Default timeout bisa di-configure di `DataExchangeClient` jika diperlukan untuk operasi yang lama.
 
 ## Kontak & Support
 
 Untuk pertanyaan atau issue, silakan buat issue di GitHub repository atau hubungi team developer.
 
 ---
-**Last Updated:** 2026-02-12
-**Version:** 1.0
+**Last Updated:** 2026-02-12  
+**Version:** 1.1 (with Authentication)
