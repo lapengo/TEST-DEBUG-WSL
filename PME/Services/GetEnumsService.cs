@@ -41,10 +41,15 @@ public class GetEnumsService
 
             ConsoleHelper.PrintSuccess("Berhasil mendapatkan enums!");
         }
-        catch (System.ServiceModel.FaultException<string> faultEx)
+        catch (System.ServiceModel.FaultException faultEx)
         {
-            // Handle SOAP faults specifically
-            if (faultEx.Detail?.Contains("OPERATION_NOT_SUPPORTED") == true)
+            // Handle SOAP faults - check for OPERATION_NOT_SUPPORTED
+            // The error message is in the Exception.Message or Reason
+            string errorMessage = faultEx.Message;
+            
+            if (errorMessage.Contains("OPERATION_NOT_SUPPORTED") || 
+                faultEx.Code?.Name == "OPERATION_NOT_SUPPORTED" ||
+                faultEx.Reason?.ToString().Contains("OPERATION_NOT_SUPPORTED") == true)
             {
                 Console.WriteLine();
                 ConsoleHelper.PrintSeparator();
@@ -67,7 +72,7 @@ public class GetEnumsService
             }
             else
             {
-                throw new Exception($"SOAP Fault: {faultEx.Detail}", faultEx);
+                throw new Exception($"SOAP Fault: {faultEx.Message}", faultEx);
             }
         }
         catch (Exception ex)
@@ -141,7 +146,7 @@ public class GetEnumsService
 
             return dto;
         }
-        catch (System.ServiceModel.FaultException<string>)
+        catch (System.ServiceModel.FaultException)
         {
             // Re-throw SOAP faults untuk di-handle di ExecuteAsync
             throw;
