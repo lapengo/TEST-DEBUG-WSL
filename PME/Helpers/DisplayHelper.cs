@@ -170,4 +170,194 @@ public static class DisplayHelper
             Console.WriteLine();
         }
     }
+
+    /// <summary>
+    /// Display GetItems response
+    /// </summary>
+    public static void DisplayItems(GetItemsResponseDto response)
+    {
+        ConsoleHelper.PrintSeparator();
+        Console.WriteLine("HASIL RESPONSE:");
+        ConsoleHelper.PrintSeparator();
+        Console.WriteLine();
+
+        // Tampilkan response version
+        if (!string.IsNullOrEmpty(response.ResponseVersion))
+        {
+            Console.WriteLine($"Response Version: {response.ResponseVersion}");
+            Console.WriteLine();
+        }
+
+        // Tampilkan error results jika ada
+        if (response.ErrorResults != null && response.ErrorResults.Any())
+        {
+            ConsoleHelper.PrintSectionHeader("ERROR RESULTS:");
+            foreach (var error in response.ErrorResults)
+            {
+                ConsoleHelper.PrintListItem(error);
+            }
+            Console.WriteLine();
+        }
+
+        // Tampilkan Value Items
+        if (response.ValueItems != null && response.ValueItems.Any())
+        {
+            ConsoleHelper.PrintSectionHeader($"VALUE ITEMS ({response.ValueItems.Count} items):");
+            Console.WriteLine();
+
+            foreach (var item in response.ValueItems)
+            {
+                Console.WriteLine($"  Item: {item.Name ?? "N/A"}");
+                ConsoleHelper.PrintKeyValue("ID", item.Id, indent: 4);
+                ConsoleHelper.PrintKeyValue("Description", item.Description, indent: 4);
+                ConsoleHelper.PrintKeyValue("Type", item.Type, indent: 4);
+                ConsoleHelper.PrintKeyValue("Value", item.Value, indent: 4);
+                ConsoleHelper.PrintKeyValue("Unit", item.Unit, indent: 4);
+                ConsoleHelper.PrintKeyValue("Writeable", item.Writeable, indent: 4);
+                ConsoleHelper.PrintKeyValue("State", item.State, indent: 4);
+                Console.WriteLine();
+            }
+        }
+
+        // Tampilkan History Items
+        if (response.HistoryItems != null && response.HistoryItems.Any())
+        {
+            ConsoleHelper.PrintSectionHeader($"HISTORY ITEMS ({response.HistoryItems.Count} items):");
+            Console.WriteLine();
+
+            foreach (var item in response.HistoryItems)
+            {
+                Console.WriteLine($"  Item: {item.Name ?? "N/A"}");
+                ConsoleHelper.PrintKeyValue("ID", item.Id, indent: 4);
+                ConsoleHelper.PrintKeyValue("Description", item.Description, indent: 4);
+                ConsoleHelper.PrintKeyValue("Type", item.Type, indent: 4);
+                ConsoleHelper.PrintKeyValue("Unit", item.Unit, indent: 4);
+                Console.WriteLine();
+            }
+        }
+
+        // Tampilkan Alarm Items
+        if (response.AlarmItems != null && response.AlarmItems.Any())
+        {
+            ConsoleHelper.PrintSectionHeader($"ALARM ITEMS ({response.AlarmItems.Count} items):");
+            Console.WriteLine();
+
+            foreach (var item in response.AlarmItems)
+            {
+                Console.WriteLine($"  Item: {item.Name ?? "N/A"}");
+                ConsoleHelper.PrintKeyValue("ID", item.Id, indent: 4);
+                ConsoleHelper.PrintKeyValue("Description", item.Description, indent: 4);
+                Console.WriteLine();
+            }
+        }
+
+        if (!response.ValueItems.Any() && !response.HistoryItems.Any() && !response.AlarmItems.Any())
+        {
+            ConsoleHelper.PrintSectionHeader("ITEMS: Tidak ada data");
+            Console.WriteLine();
+        }
+    }
+
+    /// <summary>
+    /// Display GetValues response
+    /// </summary>
+    public static void DisplayValues(GetValuesResponseDto response)
+    {
+        ConsoleHelper.PrintSeparator();
+        Console.WriteLine("HASIL RESPONSE:");
+        ConsoleHelper.PrintSeparator();
+        Console.WriteLine();
+
+        // Tampilkan response version
+        if (!string.IsNullOrEmpty(response.ResponseVersion))
+        {
+            Console.WriteLine($"Response Version: {response.ResponseVersion}");
+            Console.WriteLine();
+        }
+
+        // Tampilkan error results jika ada
+        if (response.ErrorResults != null && response.ErrorResults.Any())
+        {
+            ConsoleHelper.PrintSectionHeader("ERROR RESULTS:");
+            foreach (var error in response.ErrorResults)
+            {
+                ConsoleHelper.PrintListItem(error);
+            }
+            Console.WriteLine();
+        }
+
+        // Tampilkan Values
+        if (response.Values != null && response.Values.Any())
+        {
+            ConsoleHelper.PrintSectionHeader($"VALUES ({response.Values.Count} values):");
+            Console.WriteLine();
+
+            foreach (var value in response.Values)
+            {
+                Console.WriteLine($"  Value:");
+                ConsoleHelper.PrintKeyValue("ID", value.Id, indent: 4);
+                ConsoleHelper.PrintKeyValue("Value", value.Value, indent: 4);
+                ConsoleHelper.PrintKeyValue("Timestamp", value.Timestamp?.ToString("yyyy-MM-dd HH:mm:ss"), indent: 4);
+                ConsoleHelper.PrintKeyValue("Quality", value.Quality, indent: 4);
+                Console.WriteLine();
+            }
+        }
+        else
+        {
+            ConsoleHelper.PrintSectionHeader("VALUES: Tidak ada data");
+            Console.WriteLine();
+        }
+    }
+
+    /// <summary>
+    /// Display GetContainerItems response
+    /// </summary>
+    public static void DisplayContainerItems(GetContainerItemsResponseDto response)
+    {
+        ConsoleHelper.PrintSeparator();
+        Console.WriteLine("HASIL RESPONSE:");
+        ConsoleHelper.PrintSeparator();
+        Console.WriteLine();
+
+        // Tampilkan response version
+        if (!string.IsNullOrEmpty(response.ResponseVersion))
+        {
+            Console.WriteLine($"Response Version: {response.ResponseVersion}");
+            Console.WriteLine();
+        }
+
+        // Tampilkan error results jika ada
+        if (response.ErrorResults != null && response.ErrorResults.Any())
+        {
+            ConsoleHelper.PrintSectionHeader("ERROR RESULTS:");
+            foreach (var error in response.ErrorResults)
+            {
+                ConsoleHelper.PrintListItem(error);
+            }
+            Console.WriteLine();
+        }
+
+        // Tampilkan Container Items
+        if (response.Items != null && response.Items.Any())
+        {
+            ConsoleHelper.PrintSectionHeader($"CONTAINER ITEMS ({response.Items.Count} items):");
+            Console.WriteLine();
+
+            foreach (var item in response.Items)
+            {
+                string itemType = item.IsContainer ? "📁 Container" : "📄 Item";
+                Console.WriteLine($"  {itemType}: {item.Name ?? "N/A"}");
+                ConsoleHelper.PrintKeyValue("ID", item.Id, indent: 4);
+                ConsoleHelper.PrintKeyValue("Description", item.Description, indent: 4);
+                ConsoleHelper.PrintKeyValue("Type", item.Type, indent: 4);
+                ConsoleHelper.PrintKeyValue("IsContainer", item.IsContainer.ToString(), indent: 4);
+                Console.WriteLine();
+            }
+        }
+        else
+        {
+            ConsoleHelper.PrintSectionHeader("CONTAINER ITEMS: Tidak ada data");
+            Console.WriteLine();
+        }
+    }
 }

@@ -44,8 +44,11 @@ try
         Console.WriteLine("1. GetWebServiceInformation");
         Console.WriteLine("2. GetAlarmEventTypes");
         Console.WriteLine("3. GetEnums");
-        Console.WriteLine("4. Jalankan semua");
-        Console.Write("\nPilihan (1/2/3/4): ");
+        Console.WriteLine("4. GetItems");
+        Console.WriteLine("5. GetValues");
+        Console.WriteLine("6. GetContainerItems");
+        Console.WriteLine("7. Jalankan semua");
+        Console.Write("\nPilihan (1-7): ");
         
         var choice = Console.ReadLine();
         Console.WriteLine();
@@ -62,11 +65,26 @@ try
                 await RunGetEnums(dataExchangeService, settings.Version);
                 break;
             case "4":
+                await RunGetItems(dataExchangeService, settings.Version);
+                break;
+            case "5":
+                await RunGetValues(dataExchangeService, settings.Version);
+                break;
+            case "6":
+                await RunGetContainerItems(dataExchangeService, settings.Version);
+                break;
+            case "7":
                 await RunGetWebServiceInfo(dataExchangeService, settings.Version);
                 Console.WriteLine();
                 await RunGetAlarmEventTypes(dataExchangeService, settings.Version);
                 Console.WriteLine();
                 await RunGetEnums(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetItems(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetValues(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetContainerItems(dataExchangeService, settings.Version);
                 break;
             default:
                 Console.WriteLine("Pilihan tidak valid. Menjalankan GetWebServiceInformation...");
@@ -119,6 +137,36 @@ static async Task RunGetEnums(DataExchangeService dataExchangeService, string ve
 {
     var service = new GetEnumsService(dataExchangeService);
     await service.ExecuteAsync(version);
+}
+
+static async Task RunGetItems(DataExchangeService dataExchangeService, string version)
+{
+    var service = new GetItemsService(dataExchangeService);
+    await service.ExecuteAsync(version, null, false);
+}
+
+static async Task RunGetValues(DataExchangeService dataExchangeService, string version)
+{
+    // Example: Get values for specific item IDs
+    // You can modify this to accept user input or read from config
+    var service = new GetValuesService(dataExchangeService);
+    
+    // For demo purposes, we'll try to get all items first
+    // In real scenario, you would know the specific item IDs
+    Console.WriteLine("GetValues memerlukan Item IDs spesifik.");
+    Console.WriteLine("Gunakan GetItems terlebih dahulu untuk melihat available items.");
+    Console.WriteLine("Untuk demo, operation ini akan di-skip.");
+    Console.WriteLine();
+    
+    // Uncomment below when you have actual item IDs:
+    // var itemIds = new List<string> { "item-id-1", "item-id-2" };
+    // await service.ExecuteAsync(version, itemIds);
+}
+
+static async Task RunGetContainerItems(DataExchangeService dataExchangeService, string version)
+{
+    var service = new GetContainerItemsService(dataExchangeService);
+    await service.ExecuteAsync(version, null, false);
 }
 
 static void HandleException(Exception ex, PmeSettings settings)
