@@ -41,29 +41,34 @@ try
 
         // Menu pilihan
         Console.WriteLine("Pilih operasi yang ingin dijalankan:");
-        Console.WriteLine("1. GetWebServiceInformation");
-        Console.WriteLine("2. GetAlarmEventTypes");
-        Console.WriteLine("3. GetEnums");
-        Console.WriteLine("4. GetItems");
-        Console.WriteLine("5. GetValues");
-        Console.WriteLine("6. GetContainerItems");
-        Console.WriteLine("7. AcknowledgeAlarmEvents");
-        Console.WriteLine("8. ForceValues");
-        Console.WriteLine("9. GetAlarmEvents");
-        Console.WriteLine("10. GetAlarmHistory");
-        Console.WriteLine("11. GetHierarchicalInformation");
-        Console.WriteLine("12. GetHistoricalDataAggregation");
-        Console.WriteLine("13. GetHistory");
-        Console.WriteLine("14. GetNotification");
-        Console.WriteLine("15. GetSystemEvents");
-        Console.WriteLine("16. GetSystemEventTypes");
-        Console.WriteLine("17. GetUpdatedAlarmEvents");
-        Console.WriteLine("18. Renew");
-        Console.WriteLine("19. SetValues");
-        Console.WriteLine("20. Subscribe");
-        Console.WriteLine("21. UnforceValues");
-        Console.WriteLine("22. Unsubscribe");
-        Console.WriteLine("23. Jalankan semua");
+        Console.WriteLine();
+        Console.WriteLine("=== OPERASI YANG DIDUKUNG SERVER (✓) ===");
+        Console.WriteLine("1. ✓ GetWebServiceInformation (Info dasar server)");
+        Console.WriteLine("2. ✓ GetAlarmEventTypes (Tipe alarm)");
+        Console.WriteLine("3. ✓ GetContainerItems (Struktur container)");
+        Console.WriteLine("4. ✓ GetAlarmEvents (Event alarm aktif)");
+        Console.WriteLine("5. ✓ GetUpdatedAlarmEvents (Update alarm)");
+        Console.WriteLine("6. ✓ AcknowledgeAlarmEvents (Acknowledge alarm)");
+        Console.WriteLine("7. ✓ GetItems (Detail items - butuh IDs)");
+        Console.WriteLine("8. ✓ GetValues (Nilai items - butuh IDs)");
+        Console.WriteLine("9. ✓ GetHistory (Data historis)");
+        Console.WriteLine();
+        Console.WriteLine("=== OPERASI TIDAK DIDUKUNG SERVER (✗) ===");
+        Console.WriteLine("10. ✗ GetEnums");
+        Console.WriteLine("11. ✗ ForceValues");
+        Console.WriteLine("12. ✗ GetAlarmHistory");
+        Console.WriteLine("13. ✗ GetHierarchicalInformation");
+        Console.WriteLine("14. ✗ GetHistoricalDataAggregation");
+        Console.WriteLine("15. ✗ GetNotification");
+        Console.WriteLine("16. ✗ GetSystemEvents");
+        Console.WriteLine("17. ✗ GetSystemEventTypes");
+        Console.WriteLine("18. ✗ Renew");
+        Console.WriteLine("19. ✗ SetValues");
+        Console.WriteLine("20. ✗ Subscribe");
+        Console.WriteLine("21. ✗ UnforceValues");
+        Console.WriteLine("22. ✗ Unsubscribe");
+        Console.WriteLine();
+        Console.WriteLine("23. Jalankan SEMUA operasi yang didukung");
         Console.Write("\nPilihan (1-23): ");
         
         var choice = Console.ReadLine();
@@ -78,49 +83,49 @@ try
                 await RunGetAlarmEventTypes(dataExchangeService, settings.Version);
                 break;
             case "3":
-                await RunGetEnums(dataExchangeService, settings.Version);
-                break;
-            case "4":
-                await RunGetItems(dataExchangeService, settings.Version);
-                break;
-            case "5":
-                await RunGetValues(dataExchangeService, settings.Version);
-                break;
-            case "6":
                 await RunGetContainerItems(dataExchangeService, settings.Version);
                 break;
-            case "7":
-                await RunAcknowledgeAlarmEvents(dataExchangeService, settings.Version);
-                break;
-            case "8":
-                await RunForceValues(dataExchangeService, settings.Version);
-                break;
-            case "9":
+            case "4":
                 await RunGetAlarmEvents(dataExchangeService, settings.Version);
                 break;
-            case "10":
-                await RunGetAlarmHistory(dataExchangeService, settings.Version);
+            case "5":
+                await RunGetUpdatedAlarmEvents(dataExchangeService, settings.Version);
                 break;
-            case "11":
-                await RunGetHierarchicalInformation(dataExchangeService, settings.Version);
+            case "6":
+                await RunAcknowledgeAlarmEvents(dataExchangeService, settings.Version);
                 break;
-            case "12":
-                await RunGetHistoricalDataAggregation(dataExchangeService, settings.Version);
+            case "7":
+                await RunGetItems(dataExchangeService, settings.Version);
                 break;
-            case "13":
+            case "8":
+                await RunGetValues(dataExchangeService, settings.Version);
+                break;
+            case "9":
                 await RunGetHistory(dataExchangeService, settings.Version);
                 break;
+            case "10":
+                await RunGetEnums(dataExchangeService, settings.Version);
+                break;
+            case "11":
+                await RunForceValues(dataExchangeService, settings.Version);
+                break;
+            case "12":
+                await RunGetAlarmHistory(dataExchangeService, settings.Version);
+                break;
+            case "13":
+                await RunGetHierarchicalInformation(dataExchangeService, settings.Version);
+                break;
             case "14":
-                await RunGetNotification(dataExchangeService, settings.Version);
+                await RunGetHistoricalDataAggregation(dataExchangeService, settings.Version);
                 break;
             case "15":
-                await RunGetSystemEvents(dataExchangeService, settings.Version);
+                await RunGetNotification(dataExchangeService, settings.Version);
                 break;
             case "16":
-                await RunGetSystemEventTypes(dataExchangeService, settings.Version);
+                await RunGetSystemEvents(dataExchangeService, settings.Version);
                 break;
             case "17":
-                await RunGetUpdatedAlarmEvents(dataExchangeService, settings.Version);
+                await RunGetSystemEventTypes(dataExchangeService, settings.Version);
                 break;
             case "18":
                 await RunRenew(dataExchangeService, settings.Version);
@@ -138,49 +143,26 @@ try
                 await RunUnsubscribe(dataExchangeService, settings.Version);
                 break;
             case "23":
+                // Jalankan hanya operasi yang didukung server
+                Console.WriteLine("Menjalankan semua operasi yang DIDUKUNG server...");
+                Console.WriteLine();
                 await RunGetWebServiceInfo(dataExchangeService, settings.Version);
                 Console.WriteLine();
                 await RunGetAlarmEventTypes(dataExchangeService, settings.Version);
                 Console.WriteLine();
-                await RunGetEnums(dataExchangeService, settings.Version);
+                await RunGetContainerItems(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetAlarmEvents(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetUpdatedAlarmEvents(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunAcknowledgeAlarmEvents(dataExchangeService, settings.Version);
                 Console.WriteLine();
                 await RunGetItems(dataExchangeService, settings.Version);
                 Console.WriteLine();
                 await RunGetValues(dataExchangeService, settings.Version);
                 Console.WriteLine();
-                await RunGetContainerItems(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunAcknowledgeAlarmEvents(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunForceValues(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunGetAlarmEvents(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunGetAlarmHistory(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunGetHierarchicalInformation(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunGetHistoricalDataAggregation(dataExchangeService, settings.Version);
-                Console.WriteLine();
                 await RunGetHistory(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunGetNotification(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunGetSystemEvents(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunGetSystemEventTypes(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunGetUpdatedAlarmEvents(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunRenew(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunSetValues(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunSubscribe(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunUnforceValues(dataExchangeService, settings.Version);
-                Console.WriteLine();
-                await RunUnsubscribe(dataExchangeService, settings.Version);
                 break;
             default:
                 Console.WriteLine("Pilihan tidak valid. Menjalankan GetWebServiceInformation...");

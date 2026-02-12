@@ -2,33 +2,43 @@
 
 Aplikasi ini sekarang mendukung semua 22 fungsi WSDL yang tersedia di PME DataExchange service.
 
-## Daftar Fungsi yang Tersedia
+⚠️ **PENTING:** Menu telah direorganisasi berdasarkan operasi yang didukung oleh server Anda!
 
-### Fungsi yang Sudah Ada Sebelumnya (6 fungsi):
-1. **GetWebServiceInformation** - Mendapatkan informasi tentang web service, versi, operasi yang didukung
-2. **GetAlarmEventTypes** - Mendapatkan tipe-tipe alarm event yang tersedia
-3. **GetEnums** - Mendapatkan daftar enumerasi yang tersedia
-4. **GetItems** - Mendapatkan daftar item (value items, history items, alarm items)
-5. **GetValues** - Mendapatkan nilai dari item-item tertentu
-6. **GetContainerItems** - Mendapatkan item-item dalam container
+## Organisasi Menu Baru
 
-### Fungsi Baru yang Ditambahkan (16 fungsi):
-7. **AcknowledgeAlarmEvents** - Mengakui/acknowledge alarm events
-8. **ForceValues** - Memaksa nilai tertentu ke item
-9. **GetAlarmEvents** - Mendapatkan alarm events yang aktif
-10. **GetAlarmHistory** - Mendapatkan histori alarm events
-11. **GetHierarchicalInformation** - Mendapatkan informasi hierarki sistem
-12. **GetHistoricalDataAggregation** - Mendapatkan agregasi data historis
-13. **GetHistory** - Mendapatkan data historis
-14. **GetNotification** - Mendapatkan notifikasi
-15. **GetSystemEvents** - Mendapatkan system events
-16. **GetSystemEventTypes** - Mendapatkan tipe-tipe system event
-17. **GetUpdatedAlarmEvents** - Mendapatkan alarm events yang ter-update
-18. **Renew** - Memperbaharui subscription
-19. **SetValues** - Mengatur nilai item
-20. **Subscribe** - Subscribe ke notifikasi
-21. **UnforceValues** - Menghapus forced values
-22. **Unsubscribe** - Unsubscribe dari notifikasi
+Menu sekarang dibagi menjadi 2 kategori berdasarkan response dari `GetWebServiceInformation`:
+
+### ✓ Operasi yang DIDUKUNG Server (Menu 1-9)
+Operasi-operasi ini telah dikonfirmasi didukung oleh PME server berdasarkan GetWebServiceInformation response:
+
+1. **GetWebServiceInformation** ✓ - Mendapatkan informasi tentang web service, versi, operasi yang didukung (ROOT function)
+2. **GetAlarmEventTypes** ✓ - Mendapatkan tipe-tipe alarm event yang tersedia
+3. **GetContainerItems** ✓ - Mendapatkan item-item dalam container (recommended untuk eksplorasi)
+4. **GetAlarmEvents** ✓ - Mendapatkan alarm events yang aktif
+5. **GetUpdatedAlarmEvents** ✓ - Mendapatkan alarm events yang ter-update
+6. **AcknowledgeAlarmEvents** ✓ - Mengakui/acknowledge alarm events
+7. **GetItems** ✓ - Mendapatkan daftar item (butuh Item IDs - lihat KNOWN_LIMITATIONS.md)
+8. **GetValues** ✓ - Mendapatkan nilai dari item-item tertentu (butuh Item IDs)
+9. **GetHistory** ✓ - Mendapatkan data historis
+
+### ✗ Operasi yang TIDAK DIDUKUNG Server (Menu 10-22)
+Operasi-operasi ini TIDAK ada dalam daftar supported operations dari server Anda dan kemungkinan akan menghasilkan error `OPERATION_NOT_SUPPORTED`:
+
+10. **GetEnums** ✗
+11. **ForceValues** ✗
+12. **GetAlarmHistory** ✗
+13. **GetHierarchicalInformation** ✗
+14. **GetHistoricalDataAggregation** ✗
+15. **GetNotification** ✗
+16. **GetSystemEvents** ✗
+17. **GetSystemEventTypes** ✗
+18. **Renew** ✗
+19. **SetValues** ✗
+20. **Subscribe** ✗
+21. **UnforceValues** ✗
+22. **Unsubscribe** ✗
+
+**Menu 23** - Jalankan SEMUA operasi yang didukung (hanya menu 1-9)
 
 ## Cara Menggunakan
 
@@ -37,7 +47,9 @@ Aplikasi ini sekarang mendukung semua 22 fungsi WSDL yang tersedia di PME DataEx
    dotnet run
    ```
 
-2. Pilih fungsi yang ingin dijalankan dengan memasukkan nomor 1-22
+2. Pilih fungsi yang ingin dijalankan dengan memasukkan nomor 1-23
+   - **Fokus pada menu 1-9** untuk operasi yang dijamin berfungsi
+   - Menu 10-22 tersedia untuk testing, tapi kemungkinan tidak didukung
 3. Atau pilih 23 untuk menjalankan semua fungsi sekaligus
 
 ## Catatan Penting
