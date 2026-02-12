@@ -47,8 +47,24 @@ try
         Console.WriteLine("4. GetItems");
         Console.WriteLine("5. GetValues");
         Console.WriteLine("6. GetContainerItems");
-        Console.WriteLine("7. Jalankan semua");
-        Console.Write("\nPilihan (1-7): ");
+        Console.WriteLine("7. AcknowledgeAlarmEvents");
+        Console.WriteLine("8. ForceValues");
+        Console.WriteLine("9. GetAlarmEvents");
+        Console.WriteLine("10. GetAlarmHistory");
+        Console.WriteLine("11. GetHierarchicalInformation");
+        Console.WriteLine("12. GetHistoricalDataAggregation");
+        Console.WriteLine("13. GetHistory");
+        Console.WriteLine("14. GetNotification");
+        Console.WriteLine("15. GetSystemEvents");
+        Console.WriteLine("16. GetSystemEventTypes");
+        Console.WriteLine("17. GetUpdatedAlarmEvents");
+        Console.WriteLine("18. Renew");
+        Console.WriteLine("19. SetValues");
+        Console.WriteLine("20. Subscribe");
+        Console.WriteLine("21. UnforceValues");
+        Console.WriteLine("22. Unsubscribe");
+        Console.WriteLine("23. Jalankan semua");
+        Console.Write("\nPilihan (1-23): ");
         
         var choice = Console.ReadLine();
         Console.WriteLine();
@@ -74,6 +90,54 @@ try
                 await RunGetContainerItems(dataExchangeService, settings.Version);
                 break;
             case "7":
+                await RunAcknowledgeAlarmEvents(dataExchangeService, settings.Version);
+                break;
+            case "8":
+                await RunForceValues(dataExchangeService, settings.Version);
+                break;
+            case "9":
+                await RunGetAlarmEvents(dataExchangeService, settings.Version);
+                break;
+            case "10":
+                await RunGetAlarmHistory(dataExchangeService, settings.Version);
+                break;
+            case "11":
+                await RunGetHierarchicalInformation(dataExchangeService, settings.Version);
+                break;
+            case "12":
+                await RunGetHistoricalDataAggregation(dataExchangeService, settings.Version);
+                break;
+            case "13":
+                await RunGetHistory(dataExchangeService, settings.Version);
+                break;
+            case "14":
+                await RunGetNotification(dataExchangeService, settings.Version);
+                break;
+            case "15":
+                await RunGetSystemEvents(dataExchangeService, settings.Version);
+                break;
+            case "16":
+                await RunGetSystemEventTypes(dataExchangeService, settings.Version);
+                break;
+            case "17":
+                await RunGetUpdatedAlarmEvents(dataExchangeService, settings.Version);
+                break;
+            case "18":
+                await RunRenew(dataExchangeService, settings.Version);
+                break;
+            case "19":
+                await RunSetValues(dataExchangeService, settings.Version);
+                break;
+            case "20":
+                await RunSubscribe(dataExchangeService, settings.Version);
+                break;
+            case "21":
+                await RunUnforceValues(dataExchangeService, settings.Version);
+                break;
+            case "22":
+                await RunUnsubscribe(dataExchangeService, settings.Version);
+                break;
+            case "23":
                 await RunGetWebServiceInfo(dataExchangeService, settings.Version);
                 Console.WriteLine();
                 await RunGetAlarmEventTypes(dataExchangeService, settings.Version);
@@ -85,6 +149,38 @@ try
                 await RunGetValues(dataExchangeService, settings.Version);
                 Console.WriteLine();
                 await RunGetContainerItems(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunAcknowledgeAlarmEvents(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunForceValues(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetAlarmEvents(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetAlarmHistory(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetHierarchicalInformation(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetHistoricalDataAggregation(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetHistory(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetNotification(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetSystemEvents(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetSystemEventTypes(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetUpdatedAlarmEvents(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunRenew(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunSetValues(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunSubscribe(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunUnforceValues(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunUnsubscribe(dataExchangeService, settings.Version);
                 break;
             default:
                 Console.WriteLine("Pilihan tidak valid. Menjalankan GetWebServiceInformation...");
@@ -167,6 +263,102 @@ static async Task RunGetContainerItems(DataExchangeService dataExchangeService, 
 {
     var service = new GetContainerItemsService(dataExchangeService);
     await service.ExecuteAsync(version, null, false);
+}
+
+static async Task RunAcknowledgeAlarmEvents(DataExchangeService dataExchangeService, string version)
+{
+    var service = new AcknowledgeAlarmEventsService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunForceValues(DataExchangeService dataExchangeService, string version)
+{
+    var service = new ForceValuesService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunGetAlarmEvents(DataExchangeService dataExchangeService, string version)
+{
+    var service = new GetAlarmEventsService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunGetAlarmHistory(DataExchangeService dataExchangeService, string version)
+{
+    var service = new GetAlarmHistoryService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunGetHierarchicalInformation(DataExchangeService dataExchangeService, string version)
+{
+    var service = new GetHierarchicalInformationService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunGetHistoricalDataAggregation(DataExchangeService dataExchangeService, string version)
+{
+    var service = new GetHistoricalDataAggregationService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunGetHistory(DataExchangeService dataExchangeService, string version)
+{
+    var service = new GetHistoryService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunGetNotification(DataExchangeService dataExchangeService, string version)
+{
+    var service = new GetNotificationService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunGetSystemEvents(DataExchangeService dataExchangeService, string version)
+{
+    var service = new GetSystemEventsService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunGetSystemEventTypes(DataExchangeService dataExchangeService, string version)
+{
+    var service = new GetSystemEventTypesService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunGetUpdatedAlarmEvents(DataExchangeService dataExchangeService, string version)
+{
+    var service = new GetUpdatedAlarmEventsService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunRenew(DataExchangeService dataExchangeService, string version)
+{
+    var service = new RenewService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunSetValues(DataExchangeService dataExchangeService, string version)
+{
+    var service = new SetValuesService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunSubscribe(DataExchangeService dataExchangeService, string version)
+{
+    var service = new SubscribeService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunUnforceValues(DataExchangeService dataExchangeService, string version)
+{
+    var service = new UnforceValuesService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunUnsubscribe(DataExchangeService dataExchangeService, string version)
+{
+    var service = new UnsubscribeService(dataExchangeService);
+    await service.ExecuteAsync(version);
 }
 
 static void HandleException(Exception ex, PmeSettings settings)
