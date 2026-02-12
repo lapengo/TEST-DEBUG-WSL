@@ -15,6 +15,7 @@ Aplikasi console .NET 10 untuk berkomunikasi dengan Schneider Electric Power Mon
 ### Prerequisites
 - .NET 10 SDK
 - Akses ke PME server: `http://beitvmpme01.beitm.id/EWS/DataExchange.svc`
+- Username dan Password untuk autentikasi Digest
 
 ### Installation & Run
 
@@ -26,7 +27,31 @@ cd TEST-DEBUG-WSL/PME
 # Build project
 dotnet build
 
-# Run aplikasi
+# Run aplikasi (akan meminta username & password)
+dotnet run
+
+# Atau set environment variables untuk credentials
+export PME_USERNAME="your_username"
+export PME_PASSWORD="your_password"
+dotnet run
+```
+
+### Authentication
+
+Aplikasi ini menggunakan **HTTP Digest Authentication** untuk mengakses SOAP service. Ada 2 cara untuk menyediakan credentials:
+
+1. **Interactive Input** - Aplikasi akan meminta username dan password saat dijalankan
+2. **Environment Variables** - Set `PME_USERNAME` dan `PME_PASSWORD` sebelum menjalankan aplikasi
+
+```bash
+# Windows (PowerShell)
+$env:PME_USERNAME="username"
+$env:PME_PASSWORD="password"
+dotnet run
+
+# Linux/Mac
+export PME_USERNAME="username"
+export PME_PASSWORD="password"
 dotnet run
 ```
 
@@ -37,7 +62,11 @@ dotnet run
 PME DataExchange SOAP Client - GetWebServiceInformation Demo
 ================================================================================
 
+Masukkan Username: admin
+Masukkan Password: ********
+
 Menghubungkan ke SOAP service: http://beitvmpme01.beitm.id/EWS/DataExchange.svc
+Username: admin
 
 Memanggil GetWebServiceInformation...
 

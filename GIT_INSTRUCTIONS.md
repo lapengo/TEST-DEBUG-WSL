@@ -64,11 +64,39 @@ dotnet clean
 ### Services Layer
 - **DataExchangeService**: 
   - Menangani komunikasi dengan SOAP service
+  - Mendukung HTTP Digest Authentication
   - Mapping dari SOAP objects ke DTOs
   - Implementasi IDisposable untuk proper resource management
 
 ### Presentation Layer
 - **Program.cs**: Console application yang menampilkan output GetWebServiceInformation
+
+## Authentication
+
+Aplikasi ini menggunakan **HTTP Digest Authentication** untuk mengakses SOAP service PME.
+
+### Cara Konfigurasi Credentials:
+
+1. **Environment Variables** (Recommended untuk production):
+```bash
+# Windows (PowerShell)
+$env:PME_USERNAME="your_username"
+$env:PME_PASSWORD="your_password"
+
+# Linux/Mac
+export PME_USERNAME="your_username"
+export PME_PASSWORD="your_password"
+```
+
+2. **Interactive Input** (Default):
+- Jika environment variable tidak di-set, aplikasi akan meminta input username dan password
+- Password di-mask dengan karakter `*` untuk keamanan
+
+### Security Notes:
+- Jangan hardcode credentials di source code
+- Gunakan environment variables untuk production
+- Password tidak ditampilkan di console (masked input)
+- Credentials tidak di-log atau disimpan
 
 ## Method yang Tersedia
 
@@ -81,9 +109,13 @@ Method ini digunakan untuk mendapatkan informasi tentang web service, termasuk:
 
 **Usage:**
 ```csharp
-using var service = new DataExchangeService(serviceUrl);
+// Dengan credentials
+using var service = new DataExchangeService(serviceUrl, username, password);
 var request = new WebServiceInfoRequestDto { Version = null };
 var response = await service.GetWebServiceInformationAsync(request);
+
+// Tanpa credentials (untuk testing atau jika service tidak butuh auth)
+using var service = new DataExchangeService(serviceUrl);
 ```
 
 ## Git Workflow Guidelines
@@ -157,6 +189,15 @@ File-file berikut sudah ada di `.gitignore`:
 
 ## Troubleshooting
 
+### Error: "The HTTP request is unauthorized with client authentication scheme 'Anonymous'"
+**Penyebab:** Service memerlukan autentikasi tetapi credentials tidak disediakan atau salah.
+
+**Solusi:**
+1. Pastikan username dan password sudah benar
+2. Set environment variables `PME_USERNAME` dan `PME_PASSWORD`
+3. Atau masukkan credentials saat diminta oleh aplikasi
+4. Verifikasi bahwa user memiliki akses ke service
+
 ### Error: "Could not connect to SOAP service"
 - Cek koneksi network ke `beitvmpme01.beitm.id`
 - Pastikan service sedang running
@@ -176,6 +217,17 @@ File-file berikut sudah ada di `.gitignore`:
 1. **Reference.cs adalah auto-generated file** - Jangan edit manual file ini. Jika perlu update WSDL, regenerate melalui Connected Services di Visual Studio.
 
 2. **Endpoint Configuration** - Endpoint SOAP service di-hardcode di `Program.cs`. Untuk production, sebaiknya dipindahkan ke configuration file.
+
+3. **Authentication** - Aplikasi menggunakan HTTP Digest Authentication. Credentials dapat disediakan melalui:
+   - Environment variables (`PME_USERNAME`, `PME_PASSWORD`) - Recommended
+   - Interactive input saat aplikasi berjalan
+   - **JANGAN** hardcode credentials di source code
+
+4. **Security Best Practices**:
+   - Selalu gunakan environment variables untuk credentials di production
+   - Jangan commit credentials ke Git
+   - Password di-mask saat input di console
+   - Credentials tidak di-log
 
 3. **Authentication** - Saat ini tidak ada authentication. Jika service memerlukan credentials, tambahkan di `DataExchangeService` constructor.
 
