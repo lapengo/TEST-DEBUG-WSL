@@ -109,4 +109,65 @@ public static class DisplayHelper
             Console.WriteLine();
         }
     }
+
+    /// <summary>
+    /// Display GetEnums response
+    /// </summary>
+    public static void DisplayEnums(GetEnumsResponseDto response)
+    {
+        ConsoleHelper.PrintSeparator();
+        Console.WriteLine("HASIL RESPONSE:");
+        ConsoleHelper.PrintSeparator();
+        Console.WriteLine();
+
+        // Tampilkan response version
+        if (!string.IsNullOrEmpty(response.ResponseVersion))
+        {
+            Console.WriteLine($"Response Version: {response.ResponseVersion}");
+            Console.WriteLine();
+        }
+
+        // Tampilkan error results jika ada
+        if (response.ErrorResults != null && response.ErrorResults.Any())
+        {
+            ConsoleHelper.PrintSectionHeader("ERROR RESULTS:");
+            foreach (var error in response.ErrorResults)
+            {
+                ConsoleHelper.PrintListItem(error);
+            }
+            Console.WriteLine();
+        }
+
+        // Tampilkan enums
+        if (response.Enums != null && response.Enums.Any())
+        {
+            ConsoleHelper.PrintSectionHeader($"ENUMS ({response.Enums.Count} enums):");
+            Console.WriteLine();
+
+            foreach (var enumDto in response.Enums)
+            {
+                Console.WriteLine($"  Enum: {enumDto.Name ?? "N/A"}");
+                ConsoleHelper.PrintKeyValue("ID", enumDto.Id, indent: 4);
+                
+                if (enumDto.Values != null && enumDto.Values.Any())
+                {
+                    Console.WriteLine($"    Values ({enumDto.Values.Count}):");
+                    foreach (var value in enumDto.Values)
+                    {
+                        Console.WriteLine($"      • {value.Value} = {value.Text}");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("    Values: Tidak ada");
+                }
+                Console.WriteLine();
+            }
+        }
+        else
+        {
+            ConsoleHelper.PrintSectionHeader("ENUMS: Tidak ada data");
+            Console.WriteLine();
+        }
+    }
 }

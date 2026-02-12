@@ -43,8 +43,9 @@ try
         Console.WriteLine("Pilih operasi yang ingin dijalankan:");
         Console.WriteLine("1. GetWebServiceInformation");
         Console.WriteLine("2. GetAlarmEventTypes");
-        Console.WriteLine("3. Jalankan semua");
-        Console.Write("\nPilihan (1/2/3): ");
+        Console.WriteLine("3. GetEnums");
+        Console.WriteLine("4. Jalankan semua");
+        Console.Write("\nPilihan (1/2/3/4): ");
         
         var choice = Console.ReadLine();
         Console.WriteLine();
@@ -58,9 +59,14 @@ try
                 await RunGetAlarmEventTypes(dataExchangeService, settings.Version);
                 break;
             case "3":
+                await RunGetEnums(dataExchangeService, settings.Version);
+                break;
+            case "4":
                 await RunGetWebServiceInfo(dataExchangeService, settings.Version);
                 Console.WriteLine();
                 await RunGetAlarmEventTypes(dataExchangeService, settings.Version);
+                Console.WriteLine();
+                await RunGetEnums(dataExchangeService, settings.Version);
                 break;
             default:
                 Console.WriteLine("Pilihan tidak valid. Menjalankan GetWebServiceInformation...");
@@ -106,6 +112,12 @@ static async Task RunGetWebServiceInfo(DataExchangeService dataExchangeService, 
 static async Task RunGetAlarmEventTypes(DataExchangeService dataExchangeService, string version)
 {
     var service = new AlarmEventTypesService(dataExchangeService);
+    await service.ExecuteAsync(version);
+}
+
+static async Task RunGetEnums(DataExchangeService dataExchangeService, string version)
+{
+    var service = new GetEnumsService(dataExchangeService);
     await service.ExecuteAsync(version);
 }
 
