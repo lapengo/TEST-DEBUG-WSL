@@ -12,6 +12,11 @@ Aplikasi console .NET 10 untuk berkomunikasi dengan Schneider Electric Power Mon
 
 ✅ **GetAlarmEventTypes** - Mendapatkan daftar alarm event types yang didukung oleh service
 
+✅ **GetEnums** - Mendapatkan enumerations dengan values:
+- List of enums dengan ID dan Name
+- Enum values (value-text pairs)
+- Error results jika ada
+
 ✅ **Clean Architecture** - Kode ter-refactor dengan separation of concerns:
 - Helper layer untuk reusable utilities
 - Service layer untuk business logic
@@ -71,9 +76,10 @@ Aplikasi sekarang memiliki menu interaktif untuk memilih operasi:
 Pilih operasi yang ingin dijalankan:
 1. GetWebServiceInformation
 2. GetAlarmEventTypes
-3. Jalankan semua
+3. GetEnums
+4. Jalankan semua
 
-Pilihan (1/2/3):
+Pilihan (1/2/3/4):
 ```
 
 ## Output Example
@@ -142,7 +148,7 @@ Pilih operasi yang ingin dijalankan:
 2. GetAlarmEventTypes
 3. Jalankan semua
 
-Pilihan (1/2/3): 2
+Pilihan (1/2/3/4): 2
 
 Memanggil GetAlarmEventTypes...
 
@@ -164,6 +170,65 @@ Berhasil mendapatkan alarm event types!
 ================================================================================
 ```
 
+### GetEnums
+```
+================================================================================
+PME DataExchange SOAP Client - Demo
+================================================================================
+
+Konfigurasi dimuat dari appsettings.json
+
+Menghubungkan ke SOAP service: http://beitvmpme01.beitm.id/EWS/DataExchange.svc
+Username: supervisor
+Version: 2
+
+Pilih operasi yang ingin dijalankan:
+1. GetWebServiceInformation
+2. GetAlarmEventTypes
+3. GetEnums
+4. Jalankan semua
+
+Pilihan (1/2/3/4): 3
+
+Memanggil GetEnums...
+
+================================================================================
+HASIL RESPONSE:
+================================================================================
+
+Response Version: 2
+
+ENUMS (3 enums):
+
+  Enum: AlarmPriority
+    ID: alarm-priority-enum
+    Values (4):
+      • 1 = Low
+      • 2 = Medium
+      • 3 = High
+      • 4 = Critical
+
+  Enum: DeviceStatus
+    ID: device-status-enum
+    Values (3):
+      • 0 = Offline
+      • 1 = Online
+      • 2 = Error
+
+  Enum: MeasurementUnit
+    ID: measurement-unit-enum
+    Values (5):
+      • kW = Kilowatt
+      • kWh = Kilowatt Hour
+      • A = Ampere
+      • V = Volt
+      • Hz = Hertz
+
+================================================================================
+Berhasil mendapatkan enums!
+================================================================================
+```
+
 ## Struktur Code (Clean Architecture)
 
 ```
@@ -177,12 +242,15 @@ PME/
 │   ├── WebServiceInfoRequestDto.cs
 │   ├── WebServiceInfoResponseDto.cs
 │   ├── AlarmEventTypesRequestDto.cs
-│   └── AlarmEventTypesResponseDto.cs
+│   ├── AlarmEventTypesResponseDto.cs
+│   ├── GetEnumsRequestDto.cs
+│   └── GetEnumsResponseDto.cs
 │
 ├── Services/                   # Business Logic Layer
 │   ├── DataExchangeService.cs      # SOAP client wrapper
 │   ├── WebServiceInfoService.cs    # GetWebServiceInformation logic
-│   └── AlarmEventTypesService.cs   # GetAlarmEventTypes logic
+│   ├── AlarmEventTypesService.cs   # GetAlarmEventTypes logic
+│   └── GetEnumsService.cs          # GetEnums logic
 │
 ├── Connected Services/         # Auto-generated SOAP Client
 │   └── wsdl/Reference.cs
