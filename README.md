@@ -12,10 +12,25 @@ Aplikasi console .NET 10 untuk berkomunikasi dengan Schneider Electric Power Mon
 
 ✅ **GetAlarmEventTypes** - Mendapatkan daftar alarm event types yang didukung oleh service
 
-✅ **GetEnums** - Mendapatkan enumerations dengan values:
-- List of enums dengan ID dan Name
-- Enum values (value-text pairs)
-- Error results jika ada
+⚠️ **GetEnums** - Mendapatkan enumerations dengan values:
+- **CATATAN**: Operasi ini tersedia di WSDL tetapi TIDAK DIDUKUNG oleh semua PME server
+- PME server version 1.2 tidak mendukung GetEnums
+- Jika tidak didukung, aplikasi akan menampilkan pesan informatif
+- List of enums dengan ID dan Name (jika didukung)
+- Enum values (value-text pairs) (jika didukung)
+
+### Operasi yang Tersedia (PME Server v1.2)
+Berdasarkan GetWebServiceInformation, operasi yang didukung:
+- ✅ GetWebServiceInformation
+- ✅ GetAlarmEvents
+- ✅ GetUpdatedAlarmEvents
+- ✅ GetAlarmEventTypes
+- ✅ AcknowledgeAlarmEvents
+- ✅ GetContainerItems
+- ✅ GetHistory
+- ✅ GetItems
+- ✅ GetValues
+- ❌ GetEnums (tidak didukung di v1.2)
 
 ✅ **Clean Architecture** - Kode ter-refactor dengan separation of concerns:
 - Helper layer untuk reusable utilities
@@ -170,7 +185,7 @@ Berhasil mendapatkan alarm event types!
 ================================================================================
 ```
 
-### GetEnums
+### GetEnums (Not Supported on PME v1.2)
 ```
 ================================================================================
 PME DataExchange SOAP Client - Demo
@@ -193,41 +208,25 @@ Pilihan (1/2/3/4): 3
 Memanggil GetEnums...
 
 ================================================================================
-HASIL RESPONSE:
+INFORMASI:
 ================================================================================
 
-Response Version: 2
+⚠️  GetEnums operation TIDAK DIDUKUNG oleh PME server ini.
 
-ENUMS (3 enums):
+Operasi GetEnums tersedia di WSDL tetapi tidak diaktifkan di server.
+Kemungkinan penyebab:
+  • PME server version tidak mendukung GetEnums
+  • Feature belum diaktifkan di konfigurasi server
+  • License tidak mencakup feature ini
 
-  Enum: AlarmPriority
-    ID: alarm-priority-enum
-    Values (4):
-      • 1 = Low
-      • 2 = Medium
-      • 3 = High
-      • 4 = Critical
+Silakan gunakan operasi lain yang didukung:
+  1. GetWebServiceInformation - untuk melihat operasi yang tersedia
+  2. GetAlarmEventTypes
+  3. GetHistory, GetItems, GetValues, dll
 
-  Enum: DeviceStatus
-    ID: device-status-enum
-    Values (3):
-      • 0 = Offline
-      • 1 = Online
-      • 2 = Error
-
-  Enum: MeasurementUnit
-    ID: measurement-unit-enum
-    Values (5):
-      • kW = Kilowatt
-      • kWh = Kilowatt Hour
-      • A = Ampere
-      • V = Volt
-      • Hz = Hertz
-
-================================================================================
-Berhasil mendapatkan enums!
-================================================================================
 ```
+
+**Note**: GetEnums mungkin didukung di PME server version yang lebih baru. Gunakan GetWebServiceInformation untuk melihat operasi yang tersedia di server Anda.
 
 ## Struktur Code (Clean Architecture)
 

@@ -41,6 +41,35 @@ public class GetEnumsService
 
             ConsoleHelper.PrintSuccess("Berhasil mendapatkan enums!");
         }
+        catch (System.ServiceModel.FaultException<string> faultEx)
+        {
+            // Handle SOAP faults specifically
+            if (faultEx.Detail?.Contains("OPERATION_NOT_SUPPORTED") == true)
+            {
+                Console.WriteLine();
+                ConsoleHelper.PrintSeparator();
+                Console.WriteLine("INFORMASI:");
+                ConsoleHelper.PrintSeparator();
+                Console.WriteLine();
+                Console.WriteLine("⚠️  GetEnums operation TIDAK DIDUKUNG oleh PME server ini.");
+                Console.WriteLine();
+                Console.WriteLine("Operasi GetEnums tersedia di WSDL tetapi tidak diaktifkan di server.");
+                Console.WriteLine("Kemungkinan penyebab:");
+                Console.WriteLine("  • PME server version tidak mendukung GetEnums");
+                Console.WriteLine("  • Feature belum diaktifkan di konfigurasi server");
+                Console.WriteLine("  • License tidak mencakup feature ini");
+                Console.WriteLine();
+                Console.WriteLine("Silakan gunakan operasi lain yang didukung:");
+                Console.WriteLine("  1. GetWebServiceInformation - untuk melihat operasi yang tersedia");
+                Console.WriteLine("  2. GetAlarmEventTypes");
+                Console.WriteLine("  3. GetHistory, GetItems, GetValues, dll");
+                Console.WriteLine();
+            }
+            else
+            {
+                throw new Exception($"SOAP Fault: {faultEx.Detail}", faultEx);
+            }
+        }
         catch (Exception ex)
         {
             throw new Exception($"Error saat execute GetEnums: {ex.Message}", ex);
@@ -111,6 +140,11 @@ public class GetEnumsService
             }
 
             return dto;
+        }
+        catch (System.ServiceModel.FaultException<string>)
+        {
+            // Re-throw SOAP faults untuk di-handle di ExecuteAsync
+            throw;
         }
         catch (Exception ex)
         {
