@@ -10,6 +10,13 @@ Aplikasi console .NET 10 untuk berkomunikasi dengan Schneider Electric Power Mon
 - Daftar profil yang didukung  
 - Informasi sistem (Name, ID, Version)
 
+✅ **GetAlarmEventTypes** - Mendapatkan daftar alarm event types yang didukung oleh service
+
+✅ **Clean Architecture** - Kode ter-refactor dengan separation of concerns:
+- Helper layer untuk reusable utilities
+- Service layer untuk business logic
+- Model layer untuk DTOs
+
 ## Quick Start
 
 ### Prerequisites
@@ -56,8 +63,22 @@ Aplikasi ini menggunakan **appsettings.json** untuk konfigurasi. Semua settings 
 - ✅ Bisa di-version control atau di-customize per environment
 - ✅ Lebih professional dan standard untuk .NET applications
 
+## Menu Interaktif
+
+Aplikasi sekarang memiliki menu interaktif untuk memilih operasi:
+
+```
+Pilih operasi yang ingin dijalankan:
+1. GetWebServiceInformation
+2. GetAlarmEventTypes
+3. Jalankan semua
+
+Pilihan (1/2/3):
+```
+
 ## Output Example
 
+### GetWebServiceInformation
 ```
 ================================================================================
 PME DataExchange SOAP Client - GetWebServiceInformation Demo
@@ -104,28 +125,88 @@ Berhasil mendapatkan informasi web service!
 ================================================================================
 ```
 
-## Struktur Code
+### GetAlarmEventTypes
+```
+================================================================================
+PME DataExchange SOAP Client - Demo
+================================================================================
+
+Konfigurasi dimuat dari appsettings.json
+
+Menghubungkan ke SOAP service: http://beitvmpme01.beitm.id/EWS/DataExchange.svc
+Username: supervisor
+Version: 2
+
+Pilih operasi yang ingin dijalankan:
+1. GetWebServiceInformation
+2. GetAlarmEventTypes
+3. Jalankan semua
+
+Pilihan (1/2/3): 2
+
+Memanggil GetAlarmEventTypes...
+
+================================================================================
+HASIL RESPONSE:
+================================================================================
+
+Response Version: 2
+
+ALARM EVENT TYPES:
+  - HighAlarm
+  - LowAlarm
+  - DeviceFailure
+  - CommunicationLost
+  - SystemError
+
+================================================================================
+Berhasil mendapatkan alarm event types!
+================================================================================
+```
+
+## Struktur Code (Clean Architecture)
 
 ```
 PME/
-├── Models/                    # Data Transfer Objects (DTOs)
+├── Helpers/                    # Helper layer - reusable utilities
+│   ├── ConsoleHelper.cs        # Console formatting methods
+│   └── DisplayHelper.cs        # Display logic for data types
+│
+├── Models/                     # Data Transfer Objects (DTOs)
+│   ├── PmeSettings.cs
 │   ├── WebServiceInfoRequestDto.cs
-│   └── WebServiceInfoResponseDto.cs
-├── Services/                  # Business Logic Layer
-│   └── DataExchangeService.cs
-├── Connected Services/        # Auto-generated SOAP Client
+│   ├── WebServiceInfoResponseDto.cs
+│   ├── AlarmEventTypesRequestDto.cs
+│   └── AlarmEventTypesResponseDto.cs
+│
+├── Services/                   # Business Logic Layer
+│   ├── DataExchangeService.cs      # SOAP client wrapper
+│   ├── WebServiceInfoService.cs    # GetWebServiceInformation logic
+│   └── AlarmEventTypesService.cs   # GetAlarmEventTypes logic
+│
+├── Connected Services/         # Auto-generated SOAP Client
 │   └── wsdl/Reference.cs
-└── Program.cs                 # Console Application Entry Point
+│
+└── Program.cs                  # Console Application Entry Point
 ```
 
 ## Clean Architecture
 
 Project ini menggunakan clean architecture dengan pemisahan concerns:
 
+- **Helpers**: Reusable utility methods (console formatting, display)
 - **Models**: DTOs yang clean dan simple
-- **Services**: Business logic dan SOAP communication
-- **Presentation**: Console UI untuk display results
+- **Services**: Business logic untuk setiap SOAP operation
+- **Presentation**: Console UI untuk orchestration dan user interaction
 
+### Adding New SOAP Operation
+
+1. Create Request/Response DTOs in `Models/`
+2. (Optional) Add display method in `DisplayHelper`
+3. Create service class in `Services/`
+4. Add menu option in `Program.cs`
+
+See [ARCHITECTURE_REFACTORING.md](./ARCHITECTURE_REFACTORING.md) for detailed guide.
 ## Dokumentasi Lengkap
 
 Lihat [GIT_INSTRUCTIONS.md](./GIT_INSTRUCTIONS.md) untuk:
@@ -134,15 +215,19 @@ Lihat [GIT_INSTRUCTIONS.md](./GIT_INSTRUCTIONS.md) untuk:
 - Best practices
 - Troubleshooting
 
+**Architecture Documentation:**
+- [ARCHITECTURE_REFACTORING.md](./ARCHITECTURE_REFACTORING.md) - Panduan lengkap clean architecture dan cara menambah SOAP operation baru
+
 **Troubleshooting Koneksi:**
 Jika mengalami error koneksi ke SOAP service, lihat [TROUBLESHOOTING_KONEKSI.md](./TROUBLESHOOTING_KONEKSI.md) untuk panduan lengkap mengatasi masalah network connectivity.
 
 ## Technologies
 
 - .NET 10
-- System.ServiceModel (SOAP/WCF)
+- System.ServiceModel (SOAP/WCF) dengan HTTP Digest Authentication
 - Microsoft.Extensions.Configuration (Configuration management)
 - Connected Services (WSDL to C# code generation)
+- Clean Architecture (Layered design pattern)
 
 ## License
 
@@ -151,4 +236,5 @@ Internal use only - Schneider Electric PME Integration
 ---
 
 **Author:** Development Team  
-**Last Updated:** 2026-02-12
+**Last Updated:** 2026-02-12  
+**Version:** 1.3.0 (Service Layers Architecture)
