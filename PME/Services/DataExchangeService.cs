@@ -19,10 +19,11 @@ public class DataExchangeService : IDisposable
     /// <param name="password">Password untuk autentikasi (opsional)</param>
     public DataExchangeService(string serviceUrl, string? username = null, string? password = null)
     {
-        _client = new DataExchangeClient(
-            DataExchangeClient.EndpointConfiguration.CustomBinding_IDataExchange,
-            serviceUrl
-        );
+        // Create custom binding dengan Digest authentication support
+        var binding = CreateCustomBinding();
+        var endpoint = new System.ServiceModel.EndpointAddress(serviceUrl);
+        
+        _client = new DataExchangeClient(binding, endpoint);
 
         // Konfigurasi credentials jika disediakan
         if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
@@ -30,6 +31,31 @@ public class DataExchangeService : IDisposable
             _client.ClientCredentials.HttpDigest.ClientCredential.UserName = username;
             _client.ClientCredentials.HttpDigest.ClientCredential.Password = password;
         }
+    }
+
+    /// <summary>
+    /// Create custom binding dengan Digest authentication support
+    /// </summary>
+    private static System.ServiceModel.Channels.CustomBinding CreateCustomBinding()
+    {
+        var binding = new System.ServiceModel.Channels.CustomBinding();
+        
+        // Text message encoding
+        var textBindingElement = new System.ServiceModel.Channels.TextMessageEncodingBindingElement();
+        textBindingElement.MessageVersion = System.ServiceModel.Channels.MessageVersion.CreateVersion(
+            System.ServiceModel.EnvelopeVersion.Soap12, 
+            System.ServiceModel.Channels.AddressingVersion.None);
+        binding.Elements.Add(textBindingElement);
+        
+        // HTTP transport dengan Digest authentication
+        var httpBindingElement = new System.ServiceModel.Channels.HttpTransportBindingElement();
+        httpBindingElement.AllowCookies = true;
+        httpBindingElement.MaxBufferSize = int.MaxValue;
+        httpBindingElement.MaxReceivedMessageSize = int.MaxValue;
+        httpBindingElement.AuthenticationScheme = System.Net.AuthenticationSchemes.Digest;
+        binding.Elements.Add(httpBindingElement);
+        
+        return binding;
     }
 
     /// <summary>
@@ -70,8 +96,32 @@ public class DataExchangeService : IDisposable
                 $"Detail: {ex.Message}", 
                 ex);
         }
+        catch (System.ServiceModel.Security.MessageSecurityException ex)
+        {
+            throw new Exception(
+                $"Error saat memanggil GetWebServiceInformation: Authentication gagal.\n" +
+                $"Kemungkinan penyebab:\n" +
+                $"  1. Username atau password salah\n" +
+                $"  2. User tidak memiliki permission untuk mengakses service\n" +
+                $"  3. Authentication scheme tidak sesuai (Digest/Basic/etc)\n" +
+                $"Detail: {ex.Message}", 
+                ex);
+        }
         catch (System.ServiceModel.CommunicationException ex)
         {
+            // Check if this is an authentication error
+            if (ex.Message.Contains("unauthorized") || ex.Message.Contains("401"))
+            {
+                throw new Exception(
+                    $"Error saat memanggil GetWebServiceInformation: Authentication gagal (401 Unauthorized).\n" +
+                    $"Kemungkinan penyebab:\n" +
+                    $"  1. Username atau password di appsettings.json salah\n" +
+                    $"  2. User tidak memiliki permission untuk mengakses service\n" +
+                    $"  3. Credentials tidak ter-configure dengan benar\n" +
+                    $"Detail: {ex.Message}", 
+                    ex);
+            }
+            
             throw new Exception(
                 $"Error saat memanggil GetWebServiceInformation: Gagal berkomunikasi dengan SOAP service.\n" +
                 $"Kemungkinan penyebab:\n" +
