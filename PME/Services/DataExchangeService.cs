@@ -15,12 +15,21 @@ public class DataExchangeService : IDisposable
     /// Konstruktor untuk DataExchangeService
     /// </summary>
     /// <param name="serviceUrl">URL endpoint SOAP service</param>
-    public DataExchangeService(string serviceUrl)
+    /// <param name="username">Username untuk autentikasi (opsional)</param>
+    /// <param name="password">Password untuk autentikasi (opsional)</param>
+    public DataExchangeService(string serviceUrl, string? username = null, string? password = null)
     {
         _client = new DataExchangeClient(
             DataExchangeClient.EndpointConfiguration.CustomBinding_IDataExchange,
             serviceUrl
         );
+
+        // Konfigurasi credentials jika disediakan
+        if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
+        {
+            _client.ClientCredentials.HttpDigest.ClientCredential.UserName = username;
+            _client.ClientCredentials.HttpDigest.ClientCredential.Password = password;
+        }
     }
 
     /// <summary>

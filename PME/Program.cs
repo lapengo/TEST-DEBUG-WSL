@@ -9,12 +9,32 @@ Console.WriteLine();
 // Endpoint SOAP Service
 const string serviceUrl = "http://beitvmpme01.beitm.id/EWS/DataExchange.svc";
 
+// Credentials - bisa diambil dari environment variable atau input user
+string? username = Environment.GetEnvironmentVariable("PME_USERNAME");
+string? password = Environment.GetEnvironmentVariable("PME_PASSWORD");
+
+// Jika tidak ada di environment variable, minta input dari user
+if (string.IsNullOrEmpty(username))
+{
+    Console.Write("Masukkan Username: ");
+    username = Console.ReadLine();
+}
+
+if (string.IsNullOrEmpty(password))
+{
+    Console.Write("Masukkan Password: ");
+    password = ReadPassword();
+    Console.WriteLine(); // New line setelah password input
+}
+
 try
 {
+    Console.WriteLine();
     Console.WriteLine($"Menghubungkan ke SOAP service: {serviceUrl}");
+    Console.WriteLine($"Username: {username}");
     Console.WriteLine();
 
-    using var service = new DataExchangeService(serviceUrl);
+    using var service = new DataExchangeService(serviceUrl, username, password);
 
     // Buat request
     var request = new WebServiceInfoRequestDto
@@ -119,3 +139,29 @@ catch (Exception ex)
 Console.WriteLine();
 Console.WriteLine("Tekan sembarang tombol untuk keluar...");
 Console.ReadKey();
+
+// Helper method untuk membaca password tanpa menampilkan karakter
+static string ReadPassword()
+{
+    string password = "";
+    ConsoleKeyInfo key;
+    
+    do
+    {
+        key = Console.ReadKey(true);
+        
+        if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
+        {
+            password += key.KeyChar;
+            Console.Write("*");
+        }
+        else if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+        {
+            password = password.Substring(0, password.Length - 1);
+            Console.Write("\b \b");
+        }
+    }
+    while (key.Key != ConsoleKey.Enter);
+    
+    return password;
+}
