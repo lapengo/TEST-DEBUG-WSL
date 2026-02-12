@@ -34,6 +34,14 @@ public class DataExchangeService : IDisposable
     }
 
     /// <summary>
+    /// Get SOAP client untuk direct access
+    /// </summary>
+    public DataExchangeClient GetClient()
+    {
+        return _client;
+    }
+
+    /// <summary>
     /// Create custom binding dengan Digest authentication support
     /// </summary>
     private static System.ServiceModel.Channels.CustomBinding CreateCustomBinding()
