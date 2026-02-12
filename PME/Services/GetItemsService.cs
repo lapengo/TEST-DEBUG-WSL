@@ -53,6 +53,26 @@ namespace PME.Services
                     Console.WriteLine("  3. GetAlarmEventTypes");
                     Console.WriteLine();
                 }
+                else if (errorMessage.Contains("MISSING_ID_LIST") ||
+                         faultEx.Code?.Name == "MISSING_ID_LIST" ||
+                         faultEx.Reason?.ToString().Contains("MISSING_ID_LIST") == true)
+                {
+                    ConsoleHelper.PrintSectionHeader("INFORMASI");
+                    Console.WriteLine();
+                    Console.WriteLine("⚠️  GetItems memerlukan daftar Item IDs yang spesifik.");
+                    Console.WriteLine();
+                    Console.WriteLine("GetItems tidak dapat dipanggil tanpa Item IDs.");
+                    Console.WriteLine();
+                    Console.WriteLine("Cara mendapatkan Item IDs:");
+                    Console.WriteLine("  1. Gunakan GetContainerItems terlebih dahulu untuk melihat item yang tersedia");
+                    Console.WriteLine("  2. Catat ID dari item yang ingin Anda query");
+                    Console.WriteLine("  3. Untuk saat ini, GetItems di-skip karena memerlukan kustomisasi kode");
+                    Console.WriteLine();
+                    Console.WriteLine("Alternatif:");
+                    Console.WriteLine("  • GetContainerItems - melihat semua item dalam container (lebih berguna)");
+                    Console.WriteLine("  • GetValues - mendapatkan nilai dari item tertentu (jika sudah tahu ID-nya)");
+                    Console.WriteLine();
+                }
                 else
                 {
                     throw new Exception($"Error saat memanggil GetItems: {errorMessage}", faultEx);
@@ -146,6 +166,16 @@ namespace PME.Services
             }
             catch (System.ServiceModel.FaultException faultEx)
             {
+                string errorMessage = faultEx.Message;
+                
+                // Handle MISSING_ID_LIST at the lower level too
+                if (errorMessage.Contains("MISSING_ID_LIST") ||
+                    faultEx.Code?.Name == "MISSING_ID_LIST" ||
+                    faultEx.Reason?.ToString().Contains("MISSING_ID_LIST") == true)
+                {
+                    throw new Exception("MISSING_ID_LIST", faultEx);
+                }
+                
                 throw new Exception($"Error saat memanggil GetItems: {faultEx.Message}", faultEx);
             }
         }
