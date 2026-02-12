@@ -42,10 +42,15 @@ Aplikasi ini sekarang mendukung semua 22 fungsi WSDL yang tersedia di PME DataEx
 
 ## Catatan Penting
 
-- Tidak semua fungsi mungkin didukung oleh PME server yang Anda gunakan
-- Jika fungsi tidak didukung, aplikasi akan menampilkan pesan "OPERATION_NOT_SUPPORTED"
-- Beberapa fungsi memerlukan parameter tambahan (misalnya item IDs) yang perlu dikustomisasi sesuai kebutuhan
-- Semua fungsi mengikuti pola yang sama seperti GetWebServiceInformation
+1. **Operasi yang Memerlukan Parameter Spesifik:**
+   - **GetItems** (option 4): Memerlukan daftar Item IDs. Tanpa IDs, akan menampilkan pesan error informatif. Gunakan GetContainerItems terlebih dahulu untuk melihat item yang tersedia.
+   - **GetValues** (option 5): Memerlukan Item IDs yang spesifik.
+   - Lihat `KNOWN_LIMITATIONS.md` untuk detail dan cara kerja alternatif.
+
+2. **Dukungan Server:** Tidak semua fungsi mungkin didukung oleh PME server yang Anda gunakan
+3. **Error Handling:** Jika fungsi tidak didukung, aplikasi akan menampilkan pesan "OPERATION_NOT_SUPPORTED"
+4. **Parameter Tambahan:** Beberapa fungsi memerlukan parameter tambahan yang perlu dikustomisasi sesuai kebutuhan
+5. **Consistency:** Semua fungsi mengikuti pola yang sama seperti GetWebServiceInformation
 
 ## Struktur Kode
 
