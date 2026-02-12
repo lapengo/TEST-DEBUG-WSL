@@ -8,76 +8,71 @@ Error: The HTTP request is unauthorized with client authentication scheme 'Anony
 Authentication header: 'Digest realm="DataExchangeService", nonce="...", algorithm=MD5/SHA-256, qop="auth"'
 ```
 
-**Root Cause:** Service memerlukan HTTP Digest Authentication, tetapi aplikasi menggunakan Anonymous authentication.
+**Root Cause:** Service memerlukan HTTP Digest Authentication, tetapi binding SOAP client tidak dikonfigurasi untuk menggunakan Digest authentication scheme - default adalah Anonymous.
 
 ---
 
 ## ✅ Solution Implemented
 
-### 1. Code Changes
+### Version 1: Initial Fix (Credentials Only)
+**Issue:** Credentials dikonfigurasi tetapi binding masih menggunakan Anonymous authentication.
+
+### Version 2: Complete Fix (Binding Configuration) ⭐ CURRENT
 
 #### A. DataExchangeService.cs
-**Before:**
-```csharp
-public DataExchangeService(string serviceUrl)
-{
-    _client = new DataExchangeClient(
-        DataExchangeClient.EndpointConfiguration.CustomBinding_IDataExchange,
-        serviceUrl
-    );
-}
-```
+**Problem:** Auto-generated WSDL binding tidak set `AuthenticationScheme` pada `HttpTransportBindingElement`.
 
-**After:**
+**Solution:**
 ```csharp
 public DataExchangeService(string serviceUrl, string? username = null, string? password = null)
 {
-    _client = new DataExchangeClient(
-        DataExchangeClient.EndpointConfiguration.CustomBinding_IDataExchange,
-        serviceUrl
-    );
+    // Create custom binding dengan Digest authentication support
+    var binding = CreateCustomBinding();
+    var endpoint = new System.ServiceModel.EndpointAddress(serviceUrl);
+    
+    _client = new DataExchangeClient(binding, endpoint);
 
-    // Konfigurasi credentials jika disediakan
+    // Konfigurasi credentials
     if (!string.IsNullOrEmpty(username) && !string.IsNullOrEmpty(password))
     {
         _client.ClientCredentials.HttpDigest.ClientCredential.UserName = username;
         _client.ClientCredentials.HttpDigest.ClientCredential.Password = password;
     }
 }
+
+private static System.ServiceModel.Channels.CustomBinding CreateCustomBinding()
+{
+    var binding = new System.ServiceModel.Channels.CustomBinding();
+    
+    // Text message encoding (SOAP 1.2)
+    var textBindingElement = new System.ServiceModel.Channels.TextMessageEncodingBindingElement();
+    textBindingElement.MessageVersion = System.ServiceModel.Channels.MessageVersion.CreateVersion(
+        System.ServiceModel.EnvelopeVersion.Soap12, 
+        System.ServiceModel.Channels.AddressingVersion.None);
+    binding.Elements.Add(textBindingElement);
+    
+    // HTTP transport dengan Digest authentication - KEY FIX!
+    var httpBindingElement = new System.ServiceModel.Channels.HttpTransportBindingElement();
+    httpBindingElement.AllowCookies = true;
+    httpBindingElement.MaxBufferSize = int.MaxValue;
+    httpBindingElement.MaxReceivedMessageSize = int.MaxValue;
+    httpBindingElement.AuthenticationScheme = System.Net.AuthenticationSchemes.Digest; // THIS IS THE KEY!
+    binding.Elements.Add(httpBindingElement);
+    
+    return binding;
+}
 ```
 
 **Key Changes:**
-- ✅ Added optional `username` and `password` parameters
+- ✅ Created custom binding instead of using auto-generated binding
+- ✅ Set `AuthenticationScheme = System.Net.AuthenticationSchemes.Digest` - **THIS WAS THE MISSING PIECE!**
+- ✅ Maintains all other binding settings (SOAP 1.2, cookies, buffer sizes)
 - ✅ Configured `ClientCredentials.HttpDigest` for authentication
-- ✅ Backward compatible - works with or without credentials
+
+**Why This Works:**
+The `HttpTransportBindingElement.AuthenticationScheme` property tells the WCF client what authentication scheme to use when making HTTP requests. Without this set to `Digest`, the client defaults to `Anonymous` authentication, even if credentials are configured.
 
 ---
-
-#### B. Program.cs
-**Added Features:**
-1. **Environment Variable Support**
-```csharp
-string? username = Environment.GetEnvironmentVariable("PME_USERNAME");
-string? password = Environment.GetEnvironmentVariable("PME_PASSWORD");
-```
-
-2. **Interactive Input Fallback**
-```csharp
-if (string.IsNullOrEmpty(username))
-{
-    Console.Write("Masukkan Username: ");
-    username = Console.ReadLine();
-}
-
-if (string.IsNullOrEmpty(password))
-{
-    Console.Write("Masukkan Password: ");
-    password = ReadPassword(); // Masked input
-    Console.WriteLine();
-}
-```
-
-3. **Secure Password Input**
 ```csharp
 static string ReadPassword()
 {
