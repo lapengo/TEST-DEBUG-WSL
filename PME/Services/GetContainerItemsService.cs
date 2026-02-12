@@ -18,6 +18,15 @@ namespace PME.Services
             {
                 ConsoleHelper.PrintHeader("GetContainerItems");
 
+                // If no container ID provided, use root container ID
+                if (string.IsNullOrEmpty(containerId))
+                {
+                    Console.WriteLine("⚠️  Tidak ada Container ID yang diberikan.");
+                    Console.WriteLine("Mencoba menggunakan root container ID: \"/\"");
+                    Console.WriteLine();
+                    containerId = "/";
+                }
+
                 var request = new GetContainerItemsRequestDto
                 {
                     ContainerId = containerId,
@@ -42,6 +51,25 @@ namespace PME.Services
                     Console.WriteLine("⚠️  GetContainerItems operation TIDAK DIDUKUNG oleh PME server ini.");
                     Console.WriteLine();
                     Console.WriteLine("Silakan gunakan GetWebServiceInformation untuk melihat operasi yang tersedia.");
+                    Console.WriteLine();
+                }
+                else if (errorMessage.Contains("MISSING_ID_LIST") ||
+                         faultEx.Code?.Name == "MISSING_ID_LIST" ||
+                         faultEx.Reason?.ToString().Contains("MISSING_ID_LIST") == true)
+                {
+                    ConsoleHelper.PrintSectionHeader("INFORMASI");
+                    Console.WriteLine();
+                    Console.WriteLine("⚠️  GetContainerItems memerlukan ID Container yang valid.");
+                    Console.WriteLine();
+                    Console.WriteLine("Cara mendapatkan Container IDs:");
+                    Console.WriteLine("  1. Gunakan GetItems untuk melihat semua items dan containers");
+                    Console.WriteLine("  2. Pilih Container ID dari hasil GetItems");
+                    Console.WriteLine("  3. Jalankan GetContainerItems dengan Container ID tersebut");
+                    Console.WriteLine();
+                    Console.WriteLine("Contoh Container IDs yang mungkin:");
+                    Console.WriteLine("  • \"/\" - Root container");
+                    Console.WriteLine("  • \"System\" - System container");
+                    Console.WriteLine("  • Container ID spesifik dari GetItems");
                     Console.WriteLine();
                 }
                 else
