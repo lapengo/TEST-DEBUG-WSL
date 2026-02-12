@@ -251,7 +251,7 @@ public static class DisplayHelper
             }
         }
 
-        if (!response.ValueItems.Any() && !response.HistoryItems.Any() && !response.AlarmItems.Any())
+        if ((response.ValueItems?.Any() != true) && (response.HistoryItems?.Any() != true) && (response.AlarmItems?.Any() != true))
         {
             ConsoleHelper.PrintSectionHeader("ITEMS: Tidak ada data");
             Console.WriteLine();

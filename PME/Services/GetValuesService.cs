@@ -74,16 +74,16 @@ namespace PME.Services
                 };
 
                 // Map Values
-                if (soapResponse.GetValuesResponse.GetValuesValues != null)
+                if (soapResponse.GetValuesResponse.GetValuesItems != null)
                 {
-                    foreach (var value in soapResponse.GetValuesResponse.GetValuesValues)
+                    foreach (var value in soapResponse.GetValuesResponse.GetValuesItems)
                     {
                         response.Values.Add(new ValueDto
                         {
                             Id = value.Id,
                             Value = value.Value,
-                            Timestamp = value.Timestamp,
-                            Quality = value.Quality
+                            Timestamp = null, // ValueTypeStateful doesn't have Timestamp
+                            Quality = value.State // State is the quality/status
                         });
                     }
                 }
@@ -93,7 +93,7 @@ namespace PME.Services
                 {
                     foreach (var error in soapResponse.GetValuesResponse.GetValuesErrorResults)
                     {
-                        response.ErrorResults.Add($"{error.Id}: {error.Error}");
+                        response.ErrorResults.Add($"{error.Id}: {error.Message}");
                     }
                 }
 

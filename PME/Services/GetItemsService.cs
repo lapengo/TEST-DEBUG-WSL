@@ -74,7 +74,7 @@ namespace PME.Services
                 {
                     GetItemsIds = request.ItemIds?.ToArray(),
                     version = request.Version,
-                    Metadata = request.IncludeMetadata
+                    metadata = request.IncludeMetadata
                 };
 
                 var soapResponse = await client.GetItemsAsync(new wsdl.GetItemsRequest1(soapRequest));
@@ -138,7 +138,7 @@ namespace PME.Services
                 {
                     foreach (var error in soapResponse.GetItemsResponse.GetItemsErrorResults)
                     {
-                        response.ErrorResults.Add($"{error.Id}: {error.Error}");
+                        response.ErrorResults.Add($"{error.Id}: {error.Message}");
                     }
                 }
 

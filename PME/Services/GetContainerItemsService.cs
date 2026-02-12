@@ -63,9 +63,9 @@ namespace PME.Services
 
                 var soapRequest = new wsdl.GetContainerItemsRequest
                 {
-                    GetContainerItemsId = request.ContainerId,
+                    GetContainerItemsIds = string.IsNullOrEmpty(request.ContainerId) ? null : new[] { request.ContainerId },
                     version = request.Version,
-                    Recursive = request.Recursive
+                    metadata = false
                 };
 
                 var soapResponse = await client.GetContainerItemsAsync(new wsdl.GetContainerItemsRequest1(soapRequest));
@@ -80,13 +80,20 @@ namespace PME.Services
                 {
                     foreach (var item in soapResponse.GetContainerItemsResponse.GetContainerItemsItems)
                     {
+                        // Check if it has sub-items (is a container)
+                        bool isContainer = item.Items != null && 
+                            (item.Items.ContainerItems?.Length > 0 ||
+                             item.Items.ValueItems?.Length > 0 ||
+                             item.Items.HistoryItems?.Length > 0 ||
+                             item.Items.AlarmItems?.Length > 0);
+
                         response.Items.Add(new ContainerItemDto
                         {
                             Id = item.Id,
                             Name = item.Name,
                             Description = item.Description,
                             Type = item.Type,
-                            IsContainer = item.IsContainer
+                            IsContainer = isContainer
                         });
                     }
                 }
@@ -96,7 +103,7 @@ namespace PME.Services
                 {
                     foreach (var error in soapResponse.GetContainerItemsResponse.GetContainerItemsErrorResults)
                     {
-                        response.ErrorResults.Add($"{error.Id}: {error.Error}");
+                        response.ErrorResults.Add($"{error.Id}: {error.Message}");
                     }
                 }
 
