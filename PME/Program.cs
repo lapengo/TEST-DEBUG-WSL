@@ -2,22 +2,34 @@
 using PME.Services;
 using Microsoft.Extensions.Configuration;
 
-// Build configuration
-var configuration = new ConfigurationBuilder()
-    .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .Build();
+try
+{
+    // Build configuration
+    var configuration = new ConfigurationBuilder()
+        .SetBasePath(Directory.GetCurrentDirectory())
+        .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+        .Build();
 
-// Load settings from appsettings.json
-var settings = new PmeSettings();
-configuration.GetSection("PmeSettings").Bind(settings);
+    // Load settings from appsettings.json
+    var settings = new PmeSettings();
+    configuration.GetSection("PmeSettings").Bind(settings);
 
-Console.WriteLine("=".PadRight(80, '='));
-Console.WriteLine("PME DataExchange SOAP Client - GetWebServiceInformation Demo");
-Console.WriteLine("=".PadRight(80, '='));
-Console.WriteLine();
-Console.WriteLine($"Konfigurasi dimuat dari appsettings.json");
-Console.WriteLine();
+    // Validate required configuration
+    if (string.IsNullOrWhiteSpace(settings.ServiceUrl))
+        throw new InvalidOperationException("ServiceUrl tidak ditemukan di appsettings.json");
+    if (string.IsNullOrWhiteSpace(settings.Username))
+        throw new InvalidOperationException("Username tidak ditemukan di appsettings.json");
+    if (string.IsNullOrWhiteSpace(settings.Password))
+        throw new InvalidOperationException("Password tidak ditemukan di appsettings.json");
+    if (string.IsNullOrWhiteSpace(settings.Version))
+        throw new InvalidOperationException("Version tidak ditemukan di appsettings.json");
+
+    Console.WriteLine("=".PadRight(80, '='));
+    Console.WriteLine("PME DataExchange SOAP Client - GetWebServiceInformation Demo");
+    Console.WriteLine("=".PadRight(80, '='));
+    Console.WriteLine();
+    Console.WriteLine($"Konfigurasi dimuat dari appsettings.json");
+    Console.WriteLine();
 
 try
 {
@@ -125,6 +137,24 @@ catch (Exception ex)
     Console.WriteLine(ex.StackTrace);
     Console.WriteLine("=".PadRight(80, '='));
     
+    Environment.Exit(1);
+}
+}
+catch (FileNotFoundException)
+{
+    Console.WriteLine("ERROR: File appsettings.json tidak ditemukan!");
+    Console.WriteLine("Pastikan file appsettings.json ada di folder yang sama dengan executable.");
+    Environment.Exit(1);
+}
+catch (InvalidOperationException ex)
+{
+    Console.WriteLine($"ERROR KONFIGURASI: {ex.Message}");
+    Console.WriteLine("Periksa file appsettings.json dan pastikan semua field sudah diisi dengan benar.");
+    Environment.Exit(1);
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"ERROR: {ex.Message}");
     Environment.Exit(1);
 }
 
