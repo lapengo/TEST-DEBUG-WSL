@@ -47,9 +47,35 @@ Operasi-operasi ini TIDAK ada dalam daftar supported operations dari server Anda
    dotnet run
    ```
 
-2. Pilih fungsi yang ingin dijalankan dengan memasukkan nomor 1-23
+2. **Program akan menampilkan menu berulang:**
+   - Pilih fungsi yang ingin dijalankan dengan memasukkan nomor 0-23
    - **Fokus pada menu 1-9** untuk operasi yang dijamin berfungsi
    - Menu 10-22 tersedia untuk testing, tapi kemungkinan tidak didukung
+   - **Pilih 0 untuk keluar** dari program
+
+3. **Setelah operasi selesai:**
+   - Program otomatis kembali ke menu
+   - Anda bisa memilih operasi lain
+   - Tidak perlu restart aplikasi
+
+4. **Jika terjadi error:**
+   - Error akan ditampilkan
+   - Anda akan ditanya apakah ingin melanjutkan (y/n)
+   - Pilih 'y' untuk kembali ke menu atau 'n' untuk keluar
+
+**Menu 23** - Jalankan SEMUA operasi yang didukung (hanya menu 1-9)
+**Menu 0** - Keluar dari program
+
+## Fitur Menu Loop
+
+⭐ **FITUR BARU**: Program sekarang mendukung menu loop!
+
+- ✅ **Tidak perlu restart**: Jalankan beberapa operasi tanpa keluar
+- ✅ **Kembali ke menu**: Setelah operasi selesai, otomatis kembali ke menu
+- ✅ **Error handling**: Jika error, pilih untuk lanjut atau keluar
+- ✅ **Exit option**: Pilih menu 0 kapan saja untuk keluar
+
+Lihat `MENU_LOOP_FEATURE.md` untuk detail lengkap fitur ini.
 3. Atau pilih 23 untuk menjalankan semua fungsi sekaligus
 
 ## Catatan Penting
