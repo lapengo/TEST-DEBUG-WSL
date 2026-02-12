@@ -12,6 +12,17 @@ namespace PME.Services
             _dataExchangeService = dataExchangeService;
         }
 
+        /// <summary>
+        /// Check if the fault exception is a MISSING_ID_LIST error
+        /// </summary>
+        private bool IsMissingIdListError(System.ServiceModel.FaultException faultEx)
+        {
+            string errorMessage = faultEx.Message;
+            return errorMessage.Contains("MISSING_ID_LIST") ||
+                   faultEx.Code?.Name == "MISSING_ID_LIST" ||
+                   faultEx.Reason?.ToString().Contains("MISSING_ID_LIST") == true;
+        }
+
         public async Task ExecuteAsync(string version, List<string>? itemIds = null, bool includeMetadata = false)
         {
             try
@@ -53,9 +64,7 @@ namespace PME.Services
                     Console.WriteLine("  3. GetAlarmEventTypes");
                     Console.WriteLine();
                 }
-                else if (errorMessage.Contains("MISSING_ID_LIST") ||
-                         faultEx.Code?.Name == "MISSING_ID_LIST" ||
-                         faultEx.Reason?.ToString().Contains("MISSING_ID_LIST") == true)
+                else if (IsMissingIdListError(faultEx))
                 {
                     ConsoleHelper.PrintSectionHeader("INFORMASI");
                     Console.WriteLine();
@@ -166,14 +175,10 @@ namespace PME.Services
             }
             catch (System.ServiceModel.FaultException faultEx)
             {
-                string errorMessage = faultEx.Message;
-                
                 // Handle MISSING_ID_LIST at the lower level too
-                if (errorMessage.Contains("MISSING_ID_LIST") ||
-                    faultEx.Code?.Name == "MISSING_ID_LIST" ||
-                    faultEx.Reason?.ToString().Contains("MISSING_ID_LIST") == true)
+                if (IsMissingIdListError(faultEx))
                 {
-                    throw new Exception("MISSING_ID_LIST", faultEx);
+                    throw new Exception("GetItems memerlukan Item IDs: MISSING_ID_LIST", faultEx);
                 }
                 
                 throw new Exception($"Error saat memanggil GetItems: {faultEx.Message}", faultEx);
