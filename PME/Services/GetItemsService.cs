@@ -12,6 +12,17 @@ namespace PME.Services
             _dataExchangeService = dataExchangeService;
         }
 
+        /// <summary>
+        /// Check if the fault exception is a MISSING_ID_LIST error
+        /// </summary>
+        private bool IsMissingIdListError(System.ServiceModel.FaultException faultEx)
+        {
+            string errorMessage = faultEx.Message;
+            return errorMessage.Contains("MISSING_ID_LIST") ||
+                   faultEx.Code?.Name == "MISSING_ID_LIST" ||
+                   faultEx.Reason?.ToString().Contains("MISSING_ID_LIST") == true;
+        }
+
         public async Task ExecuteAsync(string version, List<string>? itemIds = null, bool includeMetadata = false)
         {
             try
@@ -51,6 +62,24 @@ namespace PME.Services
                     Console.WriteLine("  1. GetWebServiceInformation - untuk melihat operasi yang tersedia");
                     Console.WriteLine("  2. GetContainerItems - untuk melihat struktur container");
                     Console.WriteLine("  3. GetAlarmEventTypes");
+                    Console.WriteLine();
+                }
+                else if (IsMissingIdListError(faultEx))
+                {
+                    ConsoleHelper.PrintSectionHeader("INFORMASI");
+                    Console.WriteLine();
+                    Console.WriteLine("⚠️  GetItems memerlukan daftar Item IDs yang spesifik.");
+                    Console.WriteLine();
+                    Console.WriteLine("GetItems tidak dapat dipanggil tanpa Item IDs.");
+                    Console.WriteLine();
+                    Console.WriteLine("Cara mendapatkan Item IDs:");
+                    Console.WriteLine("  1. Gunakan GetContainerItems terlebih dahulu untuk melihat item yang tersedia");
+                    Console.WriteLine("  2. Catat ID dari item yang ingin Anda query");
+                    Console.WriteLine("  3. Untuk saat ini, GetItems di-skip karena memerlukan kustomisasi kode");
+                    Console.WriteLine();
+                    Console.WriteLine("Alternatif:");
+                    Console.WriteLine("  • GetContainerItems - melihat semua item dalam container (lebih berguna)");
+                    Console.WriteLine("  • GetValues - mendapatkan nilai dari item tertentu (jika sudah tahu ID-nya)");
                     Console.WriteLine();
                 }
                 else
@@ -146,6 +175,12 @@ namespace PME.Services
             }
             catch (System.ServiceModel.FaultException faultEx)
             {
+                // Handle MISSING_ID_LIST at the lower level too
+                if (IsMissingIdListError(faultEx))
+                {
+                    throw new Exception("GetItems memerlukan Item IDs: MISSING_ID_LIST", faultEx);
+                }
+                
                 throw new Exception($"Error saat memanggil GetItems: {faultEx.Message}", faultEx);
             }
         }

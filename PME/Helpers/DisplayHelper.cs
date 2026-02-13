@@ -360,4 +360,83 @@ public static class DisplayHelper
             Console.WriteLine();
         }
     }
+
+    /// <summary>
+    /// Display GetContainerItems response in hierarchical format
+    /// </summary>
+    public static void DisplayContainerItemsHierarchical(GetContainerItemsResponseDto response)
+    {
+        ConsoleHelper.PrintSeparator();
+        Console.WriteLine("HASIL RESPONSE - HIERARCHICAL VIEW:");
+        ConsoleHelper.PrintSeparator();
+        Console.WriteLine();
+
+        // Tampilkan response version
+        if (!string.IsNullOrEmpty(response.ResponseVersion))
+        {
+            Console.WriteLine($"Response Version: {response.ResponseVersion}");
+            Console.WriteLine();
+        }
+
+        // Tampilkan error results jika ada
+        if (response.ErrorResults != null && response.ErrorResults.Any())
+        {
+            ConsoleHelper.PrintSectionHeader("ERROR RESULTS:");
+            foreach (var error in response.ErrorResults)
+            {
+                ConsoleHelper.PrintListItem(error);
+            }
+            Console.WriteLine();
+        }
+
+        // Tampilkan Container Items dalam format hierarki
+        if (response.Items != null && response.Items.Any())
+        {
+            ConsoleHelper.PrintSectionHeader("CONTAINER HIERARCHY:");
+            Console.WriteLine();
+
+            foreach (var item in response.Items)
+            {
+                DisplayContainerItemRecursive(item, 0);
+            }
+        }
+        else
+        {
+            ConsoleHelper.PrintSectionHeader("CONTAINER ITEMS: Tidak ada data");
+            Console.WriteLine();
+        }
+    }
+
+    /// <summary>
+    /// Recursively display container item with proper indentation
+    /// </summary>
+    private static void DisplayContainerItemRecursive(ContainerItemDto item, int level)
+    {
+        string indent = new string(' ', level * 2);
+        string itemIcon = item.IsContainer ? "📁" : "📄";
+        string branch = level > 0 ? "└─ " : "";
+
+        Console.WriteLine($"{indent}{branch}{itemIcon} {item.Name ?? "N/A"}");
+        Console.WriteLine($"{indent}   ID: {item.Id}");
+        if (!string.IsNullOrEmpty(item.Description))
+        {
+            Console.WriteLine($"{indent}   Description: {item.Description}");
+        }
+        Console.WriteLine($"{indent}   Type: {item.Type}");
+        
+        if (item.Children != null && item.Children.Any())
+        {
+            Console.WriteLine($"{indent}   Children: {item.Children.Count}");
+            Console.WriteLine();
+            
+            foreach (var child in item.Children)
+            {
+                DisplayContainerItemRecursive(child, level + 1);
+            }
+        }
+        else
+        {
+            Console.WriteLine();
+        }
+    }
 }

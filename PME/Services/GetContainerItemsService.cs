@@ -16,27 +16,33 @@ namespace PME.Services
         {
             try
             {
-                ConsoleHelper.PrintHeader("GetContainerItems");
+                ConsoleHelper.PrintHeader("GetContainerItems - Hierarchical Traversal");
 
-                // If no container ID provided, use root container ID
-                if (string.IsNullOrEmpty(containerId))
-                {
-                    Console.WriteLine("⚠️  Tidak ada Container ID yang diberikan.");
-                    Console.WriteLine("Mencoba menggunakan root container ID: \"/\"");
-                    Console.WriteLine();
-                    containerId = "/";
-                }
+                // Always start from root (ID = "0") for hierarchical traversal
+                Console.WriteLine("🔍 Memulai traversal hierarki dari root container (ID: 0)...");
+                Console.WriteLine();
 
-                var request = new GetContainerItemsRequestDto
+                var rootItem = await FetchContainerHierarchyAsync(version, "0", 0);
+
+                // Create response with hierarchical structure
+                var response = new GetContainerItemsResponseDto
                 {
-                    ContainerId = containerId,
-                    Version = version,
-                    Recursive = recursive
+                    ResponseVersion = version
                 };
 
-                var response = await GetContainerItemsAsync(request);
+                if (rootItem != null)
+                {
+                    response.Items.Add(rootItem);
+                }
 
-                DisplayHelper.DisplayContainerItems(response);
+                DisplayHelper.DisplayContainerItemsHierarchical(response);
+
+                // Display summary
+                Console.WriteLine();
+                ConsoleHelper.PrintSeparator();
+                int totalItems = CountTotalItems(rootItem);
+                Console.WriteLine($"✓ Total items ditemukan: {totalItems}");
+                ConsoleHelper.PrintSeparator();
             }
             catch (System.ServiceModel.FaultException faultEx)
             {
@@ -53,25 +59,6 @@ namespace PME.Services
                     Console.WriteLine("Silakan gunakan GetWebServiceInformation untuk melihat operasi yang tersedia.");
                     Console.WriteLine();
                 }
-                else if (errorMessage.Contains("MISSING_ID_LIST") ||
-                         faultEx.Code?.Name == "MISSING_ID_LIST" ||
-                         faultEx.Reason?.ToString().Contains("MISSING_ID_LIST") == true)
-                {
-                    ConsoleHelper.PrintSectionHeader("INFORMASI");
-                    Console.WriteLine();
-                    Console.WriteLine("⚠️  GetContainerItems memerlukan ID Container yang valid.");
-                    Console.WriteLine();
-                    Console.WriteLine("Cara mendapatkan Container IDs:");
-                    Console.WriteLine("  1. Gunakan GetItems untuk melihat semua items dan containers");
-                    Console.WriteLine("  2. Pilih Container ID dari hasil GetItems");
-                    Console.WriteLine("  3. Jalankan GetContainerItems dengan Container ID tersebut");
-                    Console.WriteLine();
-                    Console.WriteLine("Contoh Container IDs yang mungkin:");
-                    Console.WriteLine("  • \"/\" - Root container");
-                    Console.WriteLine("  • \"System\" - System container");
-                    Console.WriteLine("  • Container ID spesifik dari GetItems");
-                    Console.WriteLine();
-                }
                 else
                 {
                     throw new Exception($"Error saat memanggil GetContainerItems: {errorMessage}", faultEx);
@@ -80,6 +67,120 @@ namespace PME.Services
             catch (Exception ex)
             {
                 throw new Exception($"Error saat execute GetContainerItems: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Recursively fetch container hierarchy
+        /// </summary>
+        private async Task<ContainerItemDto?> FetchContainerHierarchyAsync(string version, string containerId, int level)
+        {
+            try
+            {
+                Console.WriteLine($"{"  ".PadLeft(level * 2)}📂 Fetching container: {containerId} (level {level})");
+
+                var request = new GetContainerItemsRequestDto
+                {
+                    ContainerId = containerId,
+                    Version = version,
+                    Recursive = false
+                };
+
+                var response = await GetContainerItemsAsync(request);
+
+                // If no items returned, return null
+                if (response.Items == null || !response.Items.Any())
+                {
+                    return null;
+                }
+
+                // Get the first item (should be the container itself)
+                var containerItem = response.Items.First();
+                containerItem.Level = level;
+
+                // Now fetch children for this container
+                // The response might contain child items directly, or we need to fetch them
+                // According to the requirement, we need to extract IDs from ContainerItems and fetch each one
+                
+                var childContainerIds = new List<string>();
+                
+                // Check if there are child containers in the current response
+                // We need to look at the actual SOAP response structure
+                var soapResponse = await GetRawContainerItemsAsync(request);
+                
+                if (soapResponse?.GetContainerItemsResponse?.GetContainerItemsItems != null)
+                {
+                    foreach (var item in soapResponse.GetContainerItemsResponse.GetContainerItemsItems)
+                    {
+                        // Check if this item has child ContainerItems
+                        if (item.Items?.ContainerItems != null && item.Items.ContainerItems.Length > 0)
+                        {
+                            foreach (var childContainer in item.Items.ContainerItems)
+                            {
+                                if (!string.IsNullOrEmpty(childContainer.Id))
+                                {
+                                    childContainerIds.Add(childContainer.Id);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // Recursively fetch each child container
+                foreach (var childId in childContainerIds)
+                {
+                    var childItem = await FetchContainerHierarchyAsync(version, childId, level + 1);
+                    if (childItem != null)
+                    {
+                        containerItem.Children.Add(childItem);
+                    }
+                }
+
+                return containerItem;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{"  ".PadLeft(level * 2)}⚠️  Error fetching {containerId}: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Count total items in hierarchy
+        /// </summary>
+        private int CountTotalItems(ContainerItemDto? item)
+        {
+            if (item == null) return 0;
+            
+            int count = 1;
+            foreach (var child in item.Children)
+            {
+                count += CountTotalItems(child);
+            }
+            return count;
+        }
+
+        /// <summary>
+        /// Get raw SOAP response to extract child container IDs
+        /// </summary>
+        private async Task<wsdl.GetContainerItemsResponse1?> GetRawContainerItemsAsync(GetContainerItemsRequestDto request)
+        {
+            try
+            {
+                var client = _dataExchangeService.GetClient();
+
+                var soapRequest = new wsdl.GetContainerItemsRequest
+                {
+                    GetContainerItemsIds = string.IsNullOrEmpty(request.ContainerId) ? null : new[] { request.ContainerId },
+                    version = request.Version,
+                    metadata = false
+                };
+
+                return await client.GetContainerItemsAsync(new wsdl.GetContainerItemsRequest1(soapRequest));
+            }
+            catch
+            {
+                return null;
             }
         }
 
